@@ -1,0 +1,5 @@
+vagrant@kernel-update:~$ uname -r
+4.15.0-212-generic
+
+vagrant@kernel-update:~$ uname -r
+4.15.0-213-generic
