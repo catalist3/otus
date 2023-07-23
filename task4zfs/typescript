@@ -1,0 +1,526 @@
+Script started on Sun Jul 23 12:59:02 2023
+[root@centos7raid vagrant]# disk -l | grep Disk
+Disk /dev/sda: 42.9 GB, 42949672960 bytes, 83886080 sectors
+Disk label type: dos
+Disk identifier: 0x0009ef1a
+Disk /dev/sdd: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sdb: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sde: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sdf: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sdh: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sdi: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sdg: 1073 MB, 1073741824 bytes, 2097152 sectors
+Disk /dev/sdc: 1073 MB, 1073741824 bytes, 2097152 sectors
+[root@centos7raid vagrant]# lsblk
+NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+sda      8:0    0  40G  0 disk 
+`-sda1   8:1    0  40G  0 part /
+sdb      8:16   0   1G  0 disk 
+sdc      8:32   0   1G  0 disk 
+sdd      8:48   0   1G  0 disk 
+sde      8:64   0   1G  0 disk 
+sdf      8:80   0   1G  0 disk 
+sdg      8:96   0   1G  0 disk 
+sdh      8:112  0   1G  0 disk 
+sdi      8:128  0   1G  0 disk 
+[root@centos7raid vagrant]# zpool create otus1 mirror /dev/sdb /dev/sdc
+[root@centos7raid vagrant]# zpool create otus2 mirror /dev/sdd /dev/sde
+[root@centos7raid vagrant]# zpool create otus3 mirror /dev/sdf /dev/sdg
+[root@centos7raid vagrant]# zpool create otus4 mirror /dev/sdh /dev/sdi
+[root@centos7raid vagrant]# zpool list
+NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+otus1   960M   116K   960M        -         -     0%     0%  1.00x    ONLINE  -
+otus2   960M   116K   960M        -         -     0%     0%  1.00x    ONLINE  -
+otus3   960M   114K   960M        -         -     0%     0%  1.00x    ONLINE  -
+otus4   960M   114K   960M        -         -     0%     0%  1.00x    ONLINE  -
+[root@centos7raid vagrant]# zpool status
+  pool: otus1
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus1       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdb     ONLINE       0     0     0
+	    sdc     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus2
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus2       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdd     ONLINE       0     0     0
+	    sde     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus3
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus3       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdf     ONLINE       0     0     0
+	    sdg     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus4
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus4       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdh     ONLINE       0     0     0
+	    sdi     ONLINE       0     0     0
+
+errors: No known data errors
+[root@centos7raid vagrant]# zfs set compression=lzjb otus1
+[root@centos7raid vagrant]# zfs set compression=lz4 otus2
+[root@centos7raid vagrant]# zfs set compression=gzip-9 otus3
+[root@centos7raid vagrant]# zfs set compression=zle otus4
+[root@centos7raid vagrant]# 
+[root@centos7raid vagrant]# zfs get all | grep compression
+otus1  compression          lzjb                   local
+otus2  compression           lz4                    local
+otus3  compressio           gzip-9                 local
+otus4  compression           zle                    local
+[root@centos7raid vagrant]# for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log; done
+--2023-07-23 13:01:55--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus1/pg2600.converter.log'
+
+
+ 0% [                                                                                                 ] 0           --.-K/s              
+ 0% [                                                                                                 ] 100,049      337KB/s             
+ 1% [>                                                                                                ] 424,949      732KB/s             
+ 3% [==>                                                                                              ] 1,522,677   1.88MB/s             
+ 4% [===>                                                                                             ] 1,735,669   1.66MB/s             
+11% [=========>                                                                                       ] 4,520,949   3.59MB/s             
+15% [=============>                                                                                   ] 6,175,733   4.19MB/s             
+19% [=================>                                                                               ] 7,814,133   4.64MB/s             
+23% [=====================>                                                                           ] 9,452,533   4.99MB/s             
+27% [=========================>                                                                       ] 11,271,157  5.34MB/s             
+31% [=============================>                                                                   ] 13,024,245  5.61MB/s             
+36% [==================================>                                                              ] 14,842,869  5.85MB/s             
+40% [======================================>                                                          ] 16,595,957  6.03MB/s             
+44% [==========================================>                                                      ] 18,414,581  6.22MB/s             
+48% [==============================================>                                                  ] 19,897,333  6.27MB/s  eta 3s     
+53% [==================================================>                                              ] 21,740,533  6.42MB/s  eta 3s     
+57% [======================================================>                                          ] 23,395,317  7.08MB/s  eta 3s     
+64% [=============================================================>                                   ] 26,426,357  7.80MB/s  eta 3s     
+68% [=================================================================>                               ] 28,228,597  8.11MB/s  eta 3s     
+74% [======================================================================>                          ] 30,342,133  8.88MB/s  eta 1s     
+79% [===========================================================================>                     ] 32,422,901  8.83MB/s  eta 1s     
+84% [================================================================================>                ] 34,569,205  8.86MB/s  eta 1s     
+89% [=====================================================================================>           ] 36,584,437  9.00MB/s  eta 1s     
+92% [========================================================================================>        ] 37,764,085  8.86MB/s  eta 1s     
+94% [==========================================================================================>      ] 38,796,277  8.64MB/s  eta 0s     
+100%[================================================================================================>] 40,950,803  9.24MB/s   in 5.1s   
+
+2023-07-23 13:02:01 (7.70 MB/s) - '/otus1/pg2600.converter.log' saved [40950803/40950803]
+
+--2023-07-23 13:02:01--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus2/pg2600.converter.log'
+
+
+ 0% [                                                                                                 ] 0           --.-K/s              
+ 0% [                                                                                                 ] 40,073       138KB/s             
+ 0% [                                                                                                 ] 201,209      345KB/s             
+ 2% [=>                                                                                               ] 872,953     1006KB/s             
+ 5% [====>                                                                                            ] 2,445,817   2.23MB/s             
+10% [========>                                                                                        ] 4,166,137   3.17MB/s             
+14% [============>                                                                                    ] 5,853,689   3.84MB/s             
+19% [=================>                                                                               ] 7,787,001   4.48MB/s             
+24% [======================>                                                                          ] 9,884,153   5.07MB/s             
+29% [===========================>                                                                     ] 12,030,457  5.57MB/s             
+34% [================================>                                                                ] 14,299,641  6.03MB/s             
+40% [======================================>                                                          ] 16,683,513  6.46MB/s             
+46% [============================================>                                                    ] 19,059,193  6.82MB/s             
+51% [================================================>                                                ] 21,017,081  7.00MB/s             
+53% [===================================================>                                             ] 22,008,313  6.81MB/s  eta 3s     
+60% [==========================================================>                                      ] 24,924,665  7.00MB/s  eta 3s     
+67% [================================================================>                                ] 27,578,873  7.92MB/s  eta 3s     
+70% [===================================================================>                             ] 28,955,129  8.16MB/s  eta 3s     
+74% [======================================================================>                          ] 30,364,153  8.41MB/s  eta 3s     
+77% [=========================================================================>                       ] 31,625,721  8.85MB/s  eta 1s     
+81% [==============================================================================>                  ] 33,427,961  8.84MB/s  eta 1s     
+85% [=================================================================================>               ] 34,968,057  8.78MB/s  eta 1s     
+88% [=====================================================================================>           ] 36,442,617  8.64MB/s  eta 1s     
+92% [========================================================================================>        ] 37,868,025  8.48MB/s  eta 1s     
+96% [============================================================================================>    ] 39,490,041  8.38MB/s  eta 0s     
+100%[================================================================================================>] 40,950,803  8.32MB/s   in 5.4s   
+
+2023-07-23 13:02:07 (7.22 MB/s) - '/otus2/pg2600.converter.log' saved [40950803/40950803]
+
+--2023-07-23 13:02:07--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus3/pg2600.converter.log'
+
+
+ 0% [                                                                                                 ] 0           --.-K/s              
+ 0% [                                                                                                 ] 40,073       145KB/s             
+ 0% [                                                                                                 ] 201,209      359KB/s             
+ 2% [=>                                                                                               ] 872,953     1.01MB/s             
+ 6% [=====>                                                                                           ] 2,642,425   2.47MB/s             
+ 9% [========>                                                                                        ] 3,903,993   3.05MB/s             
+14% [============>                                                                                    ] 5,771,769   3.86MB/s             
+18% [================>                                                                                ] 7,442,937   4.35MB/s             
+23% [=====================>                                                                           ] 9,490,937   4.93MB/s             
+28% [==========================>                                                                      ] 11,588,089  5.43MB/s             
+33% [===============================>                                                                 ] 13,824,505  5.89MB/s             
+38% [====================================>                                                            ] 15,872,505  6.21MB/s             
+43% [=========================================>                                                       ] 17,994,233  6.24MB/s             
+52% [==================================================>                                              ] 21,647,865  7.00MB/s             
+56% [=====================================================>                                           ] 23,155,193  7.00MB/s  eta 2s     
+58% [========================================================>                                        ] 24,089,081  6.80MB/s  eta 2s     
+65% [==============================================================>                                  ] 26,890,745  7.72MB/s  eta 2s     
+69% [==================================================================>                              ] 28,316,153  8.28MB/s  eta 2s     
+72% [=====================================================================>                           ] 29,626,873  8.43MB/s  eta 2s     
+74% [=======================================================================>                         ] 30,659,065  8.38MB/s  eta 1s     
+79% [===========================================================================>                     ] 32,428,537  8.42MB/s  eta 1s     
+83% [===============================================================================>                 ] 34,050,553  8.39MB/s  eta 1s     
+84% [================================================================================>                ] 34,492,921  2.63MB/s  eta 2s     
+100%[================================================================================================>] 40,950,803  3.12MB/s   in 12s    
+
+2023-07-23 13:02:19 (3.37 MB/s) - '/otus3/pg2600.converter.log' saved [40950803/40950803]
+
+--2023-07-23 13:02:19--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 40950803 (39M) [text/plain]
+Saving to: '/otus4/pg2600.converter.log'
+
+
+ 0% [                                                                                                 ] 0           --.-K/s              
+ 0% [                                                                                                 ] 40,051       143KB/s             
+ 0% [                                                                                                 ] 199,759      351KB/s             
+ 2% [=>                                                                                               ] 871,503     1.01MB/s             
+ 4% [===>                                                                                             ] 2,001,999   1.85MB/s             
+ 9% [========>                                                                                        ] 3,869,775   2.97MB/s             
+13% [===========>                                                                                     ] 5,360,719   3.54MB/s             
+17% [===============>                                                                                 ] 7,081,039   4.10MB/s             
+21% [===================>                                                                             ] 8,645,711   4.46MB/s             
+25% [=======================>                                                                         ] 10,538,063  4.90MB/s             
+29% [===========================>                                                                     ] 12,143,695  5.14MB/s             
+32% [==============================>                                                                  ] 13,175,887  5.12MB/s             
+34% [================================>                                                                ] 14,044,239  5.04MB/s             
+38% [===================================>                                                             ] 15,567,951  5.19MB/s             
+44% [==========================================>                                                      ] 18,263,119  5.69MB/s  eta 4s     
+55% [=====================================================>                                           ] 22,826,063  6.68MB/s  eta 4s     
+57% [======================================================>                                          ] 23,530,575  6.98MB/s  eta 4s     
+61% [==========================================================>                                      ] 25,070,671  7.29MB/s  eta 4s     
+67% [================================================================>                                ] 27,462,735  7.88MB/s  eta 4s     
+69% [==================================================================>                              ] 28,544,079  8.09MB/s  eta 2s     
+73% [=====================================================================>                           ] 29,920,335  8.12MB/s  eta 2s     
+75% [========================================================================>                        ] 31,116,367  8.01MB/s  eta 2s     
+79% [============================================================================>                    ] 32,738,383  7.99MB/s  eta 2s     
+83% [===============================================================================>                 ] 34,114,639  8.01MB/s  eta 2s     
+86% [===================================================================================>             ] 35,490,895  7.85MB/s  eta 1s     
+91% [=======================================================================================>         ] 37,268,559  7.83MB/s  eta 1s     
+94% [==========================================================================================>      ] 38,751,311  7.73MB/s  eta 1s     
+98% [==============================================================================================>  ] 40,291,407  8.00MB/s  eta 1s     
+100%[================================================================================================>] 40,950,803  8.15MB/s   in 5.7s   
+
+2023-07-23 13:02:26 (6.80 MB/s) - '/otus4/pg2600.converter.log' saved [40950803/40950803]
+
+[root@centos7raid vagrant]# zfs list
+NAME    USED  AVAIL     REFER  MOUNTPOINT
+otus1  21.6M   810M     21.6M  /otus1
+otus2  17.7M   814M     17.6M  /otus2
+otus3  10.8M   821M     10.7M  /otus3
+otus4  39.2M   793M     39.1M  /otus4
+[root@centos7raid vagrant]# zfs get all | grep compressratio
+otus1  compressratio         1.81x                  -
+otus1  ref compressratio      1.81x                  -
+otus2   compressratio         2.22x                  -
+otus2  ref compressratio     2.22x                  -
+otus3   compressratio         3.65x                  -
+otus3  ref compressratio     3.66x                  -
+otus4   compressratio        1.00x                  -
+otus4  ref compressratio      1.00x                  -
+[root@centos7raid vagrant]# zfs get all | grep compressratio | grep ref
+otus1  ref compressratio      1.81x                  -
+otus2  ref compressratio      2.22x                  -
+otus3  ref compressratio      3.66x                  -
+otus4  ref compressratio      1.00x                  -
+[root@centos7raid vagrant]# wget -O archive.tar.gz --no-check-certificate 'https://drive.google.com/u/0/uc?id=1KRBNW33QWqbvbVHa3hLJivOAt60 
+yukkg&export=download'
+--2023-07-23 13:07:38--  https://drive.google.com/u/0/uc?id=1KRBNW33QWqbvbVHa3hLJivOAt60yukkg&export=download
+Resolving drive.google.com (drive.google.com)... 209.85.233.194, 2a00:1450:4010:c03::c2
+Connecting to drive.google.com (drive.google.com)|209.85.233.194|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://drive.google.com/uc?id=1KRBNW33QWqbvbVHa3hLJivOAt60yukkg&export=download [following]
+--2023-07-23 13:07:39--  https://drive.google.com/uc?id=1KRBNW33QWqbvbVHa3hLJivOAt60yukkg&export=download
+Reusing existing connection to drive.google.com:443.
+HTTP request sent, awaiting response... 303 See Other
+Location: https://doc-0c-bo-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/0dabr52jkh2u4rj206j8ml90u6d566aa/1690117650000/16189157874053420687/*/1KRBNW33QWqbvbVHa3hLJivOAt60yukkg?e=download&uuid=22a5bf99-4452-43d5-b371-a5dbcd544502 [following]
+Warning: wildcards not supported in HTTP.
+--2023-07-23 13:07:44--  https://doc-0c-bo-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/0dabr52jkh2u4rj206j8ml90u6d566aa/1690117650000/16189157874053420687/*/1KRBNW33QWqbvbVHa3hLJivOAt60yukkg?e=download&uuid=22a5bf99-4452-43d5-b371-a5dbcd544502
+Resolving doc-0c-bo-docs.googleusercontent.com (doc-0c-bo-docs.googleusercontent.com)... 142.250.150.132, 2a00:1450:4010:c1c::84
+Connecting to doc-0c-bo-docs.googleusercontent.com (doc-0c-bo-docs.googleusercontent.com)|142.250.150.132|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 7275140 (6.9M) [application/x-gzip]
+Saving to: 'archive.tar.gz'
+
+
+ 0% [                                                                                                 ] 0           --.-K/s              
+18% [================>                                                                                ] 1,347,054   5.10MB/s             
+60% [=========================================================>                                       ] 4,365,959   9.21MB/s             
+92% [========================================================================================>        ] 6,724,867   9.74MB/s             
+100%[================================================================================================>] 7,275,140   9.89MB/s   in 0.7s   
+
+2023-07-23 13:07:45 (9.89 MB/s) - 'archive.tar.gz' saved [7275140/7275140]
+
+[root@centos7raid vagrant]# tar -xzvf archive.tar.gz
+zpoolexport/
+zpoolexport/filea
+zpoolexport/fileb
+[root@centos7raid vagrant]# ll
+total 7132
+-rw-r--r--. 1 root root 7275140 Jul 23 13:07 archive.tar.gz
+-rw-r--r--. 1 root root   24576 Jul 23 13:07 typescript
+drwxr-xr-x. 2 root root      32 May 15  2020 zpoolexport
+[root@centos7raid vagrant]# zpool import -d zpoolexport/
+   pool: otus
+     id: 6554193320433390805
+  state: ONLINE
+ action: The pool can be imported using its name or numeric identifier.
+ config:
+
+	otus                                 ONLINE
+	  mirror-0                           ONLINE
+	    /home/vagrant/zpoolexport/filea  ONLINE
+	    /home/vagrant/zpoolexport/fileb  ONLINE
+[root@centos7raid vagrant]# zpool import -d zpoolexport/ otus
+[root@centos7raid vagrant]# zpool status
+  pool: otus
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME                                 STATE     READ WRITE CKSUM
+	otus                                 ONLINE       0     0     0
+	  mirror-0                           ONLINE       0     0     0
+	    /home/vagrant/zpoolexport/filea  ONLINE       0     0     0
+	    /home/vagrant/zpoolexport/fileb  ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus1
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus1       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdb     ONLINE       0     0     0
+	    sdc     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus2
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus2       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdd     ONLINE       0     0     0
+	    sde     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus3
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus3       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdf     ONLINE       0     0     0
+	    sdg     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus4
+ state: ONLINE
+  scan: none requested
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus4       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdh     ONLINE       0     0     0
+	    sdi     ONLINE       0     0     0
+
+errors: No known data errors
+[root@centos7raid vagrant]# zfs get pool all otus
+NAME  PROPERTY              VALUE                  SOURCE
+otus  type                  filesystem             -
+otus  creation              Fri May 15  4:00 2020  -
+otus  used                  2.04M                  -
+otus  available             350M                   -
+otus  referenced            24K                    -
+otus  compressratio         1.00x                  -
+otus  mounted               yes                    -
+otus  quota                 none                   default
+otus  reservation           none                   default
+otus  recordsize            128K                   local
+otus  mountpoint            /otus                  default
+otus  sharenfs              off                    default
+otus  checksum              sha256                 local
+otus  compression           zle                    local
+otus  atime                 on                     default
+otus  devices               on                     default
+otus  exec                  on                     default
+otus  setuid                on                     default
+otus  readonly              off                    default
+otus  zoned                 off                    default
+otus  snapdir               hidden                 default
+otus  aclinherit            restricted             default
+otus  createtxg             1                      -
+otus  canmount              on                     default
+otus  xattr                 on                     default
+otus  copies                1                      default
+otus  version               5                      -
+otus  utf8only              off                    -
+otus  normalization         none                   -
+otus  casesensitivity       sensitive              -
+otus  vscan                 off                    default
+otus  nbmand                off                    default
+otus  sharesmb              off                    default
+otus  refquota              none                   default
+otus  refreservation        none                   default
+otus  guid                  14592242904030363272   -
+otus  primarycache          all                    default
+otus  secondarycache        all                    default
+otus  usedbysnapshots       0B                     -
+otus  usedbydataset         24K                    -
+otus  usedbychildren        2.01M                  -
+otus  usedbyrefreservation  0B                     -
+otus  logbias               latency                default
+otus  objsetid              54                     -
+otus  dedup                 off                    default
+otus  mlslabel              none                   default
+otus  sync                  standard               default
+otus  dnodesize             legacy                 default
+otus  refcompressratio      1.00x                  -
+otus  written               24K                    -
+otus  logicalused           1020K                  -
+otus  logicalreferenced     12K                    -
+otus  volmode               default                default
+otus  filesystem_limit      none                   default
+otus  snapshot_limit        none                   default
+otus  filesystem_count      none                   default
+otus  snapshot_count        none                   default
+otus  snapdev               hidden                 default
+otus  acltype               off                    default
+otus  context               none                   default
+otus  fscontext             none                   default
+otus  defcontext            none                   default
+otus  rootcontext           none                   default
+otus  relatime              off                    default
+otus  redundant_metadata    all                    default
+otus  overlay               off                    default
+otus  encryption            off                    default
+otus  keylocation           none                   default
+otus  keyformat             none                   default
+otus  pbkdf2iters           0                      default
+otus  special_small_blocks  0                      default
+[root@centos7raid vagrant]# zfs get available otus
+NAME  PROPERTY   VALUE  SOURCE
+otus  available  350M   -
+[root@centos7raid vagrant]# zfs get readonly otus
+NAME  PROPERTY  VALUE   SOURCE
+otus  readonly  off     default
+[root@centos7raid vagrant]# zfs get recordsize otus
+NAME  PROPERTY    VALUE    SOURCE
+otus  recordsize  128K     local
+[root@centos7raid vagrant]# zfs get compression otus
+NAME  PROPERTY     VALUE     SOURCE
+otus  compression  zle       local
+[root@centos7raid vagrant]# zfs get checksum otus
+NAME  PROPERTY  VALUE      SOURCE
+otus  checksum  sha256     local
+[root@centos7raid vagrant]# wget -O otus_task2.file --no-check-certificate "https://drive.google.com/u/0/uc?id=1gH8gCL9y7Nd5Ti3IRmplZPF1Xj 
+zxeRAG&export=download"
+--2023-07-23 13:13:02--  https://drive.google.com/u/0/uc?id=1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG&export=download
+Resolving drive.google.com (drive.google.com)... 209.85.233.194, 2a00:1450:4010:c03::c2
+Connecting to drive.google.com (drive.google.com)|209.85.233.194|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://drive.google.com/uc?id=1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG&export=download [following]
+--2023-07-23 13:13:02--  https://drive.google.com/uc?id=1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG&export=download
+Reusing existing connection to drive.google.com:443.
+HTTP request sent, awaiting response... 303 See Other
+Location: https://doc-00-bo-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/ckun1o7a0255n8lvf3scmi5ku4g7b7b9/1690117950000/16189157874053420687/*/1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG?e=download&uuid=61dafc79-cbc9-4f77-bde0-e37bdebc1b89 [following]
+Warning: wildcards not supported in HTTP.
+--2023-07-23 13:13:06--  https://doc-00-bo-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/ckun1o7a0255n8lvf3scmi5ku4g7b7b9/1690117950000/16189157874053420687/*/1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG?e=download&uuid=61dafc79-cbc9-4f77-bde0-e37bdebc1b89
+Resolving doc-00-bo-docs.googleusercontent.com (doc-00-bo-docs.googleusercontent.com)... 142.250.150.132, 2a00:1450:4010:c1c::84
+Connecting to doc-00-bo-docs.googleusercontent.com (doc-00-bo-docs.googleusercontent.com)|142.250.150.132|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 5432736 (5.2M) [application/octet-stream]
+Saving to: 'otus_task2.file'
+
+
+ 0% [                                                                                                 ] 0           --.-K/s              
+22% [====================>                                                                            ] 1,199,607   5.50MB/s             
+76% [=========================================================================>                       ] 4,148,252   9.67MB/s             
+100%[================================================================================================>] 5,432,736   9.98MB/s   in 0.5s   
+
+2023-07-23 13:13:07 (9.98 MB/s) - 'otus_task2.file' saved [5432736/5432736]
+
+[root@centos7raid vagrant]# ll
+total 12448
+-rw-r--r--. 1 root root 7275140 Jul 23 13:07 archive.tar.gz
+-rw-r--r--. 1 root root 5432736 Jul 23 13:13 otus_task2.file
+-rw-r--r--. 1 root root   32768 Jul 23 13:12 typescript
+drwxr-xr-x. 2 root root      32 May 15  2020 zpoolexport
+[root@centos7raid vagrant]# zfs receive otus/test@today < otus_task2.file
+[root@centos7raid vagrant]# ls -la /otus/test/
+total 2592
+drwxr-xr-x. 3 root    root         11 May 15  2020 .
+drwxr-xr-x. 4 root    root          4 Jul 23 13:13 ..
+-rw-r--r--. 1 root    root          0 May 15  2020 10M.file
+-rw-r--r--. 1 root    root     309987 May 15  2020 Limbo.txt
+-rw-r--r--. 1 root    root     509836 May 15  2020 Moby_Dick.txt
+-rw-r--r--. 1 root    root    1209374 May  6  2016 War_and_Peace.txt
+-rw-r--r--. 1 root    root     727040 May 15  2020 cinderella.tar
+-rw-r--r--. 1 root    root         65 May 15  2020 for_examaple.txt
+-rw-r--r--. 1 root    root          0 May 15  2020 homework4.txt
+drwxr-xr-x. 3 vagrant vagrant       4 Dec 18  2017 task1
+-rw-r--r--. 1 root    root     398635 May 15  2020 world.sql
+[root@centos7raid vagrant]# find /otus/test/ -name "secret_message"
+[root@centos7raid vagrant]# find /otus/test/ -name "secre_message"
+/otus/test/task1/file_mess/secret_message
+[root@centos7raid vagrant]# cat /otus/test/task1/file_mess/secret_message
+https://github.com/sindresorhus/awesome
+[root@centos7raid vagrant]# 
+[root@centos7raid vagrant]# exit
+exit
+
+Script done on Sun Jul 23 13:15:05 2023
