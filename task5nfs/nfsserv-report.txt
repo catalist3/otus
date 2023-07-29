@@ -1,0 +1,48 @@
+[vagrant@nfssrv01 ~]$ sudo exportfs -s
+/srv/share  192.168.10.71/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+
+[vagrant@nfssrv01 /]$ cd srv/share/
+[vagrant@nfssrv01 share]$ ll
+total 0
+drwxrwxrwx. 2 nfsnobody nfsnobody 6 Jul 29 19:03 upload
+[vagrant@nfssrv01 share]$ 
+
+# Создаем файл на сервере
+[vagrant@nfssrv01 share]$ cd upload/
+[vagrant@nfssrv01 upload]$ touch chek_file_srv.txt
+[vagrant@nfssrv01 upload]$ 
+
+# Перезагрузим сервер и проверим
+Last login: Sat Jul 29 19:09:46 2023 from 10.0.2.2
+[vagrant@nfssrv01 ~]$ cd /srv/share/upload/
+[vagrant@nfssrv01 upload]$ ll
+total 0
+-rw-rw-r--. 1 vagrant vagrant 0 Jul 29 19:29 chek_file_srv.txt
+-rw-rw-r--. 1 vagrant vagrant 0 Jul 29 20:00 final_check.txt
+[vagrant@nfssrv01 upload]$ systemctl status nfs
+● nfs-server.service - NFS server and services
+   Loaded: loaded (/usr/lib/systemd/system/nfs-server.service; enabled; vendor preset: disabled)
+  Drop-In: /run/systemd/generator/nfs-server.service.d
+           └─order-with-mounts.conf
+   Active: active (exited) since Sat 2023-07-29 19:42:44 UTC; 20min ago
+  Process: 871 ExecStartPost=/bin/sh -c if systemctl -q is-active gssproxy; then systemctl reload gssproxy ; fi (code=exited, status=0/SUCCESS)
+  Process: 845 ExecStart=/usr/sbin/rpc.nfsd $RPCNFSDARGS (code=exited, status=0/SUCCESS)
+  Process: 843 ExecStartPre=/usr/sbin/exportfs -r (code=exited, status=0/SUCCESS)
+ Main PID: 845 (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/nfs-server.service
+[vagrant@nfssrv01 upload]$ systemctl status firewalld
+● firewalld.service - firewalld - dynamic firewall daemon
+   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2023-07-29 19:42:37 UTC; 20min ago
+     Docs: man:firewalld(1)
+ Main PID: 440 (firewalld)
+   CGroup: /system.slice/firewalld.service
+           └─440 /usr/bin/python2 -Es /usr/sbin/firewalld --nofork --nopid
+[vagrant@nfssrv01 upload]$ exportfs -s
+exportfs: could not open /var/lib/nfs/.etab.lock for locking: errno 13 (Permission denied)
+[vagrant@nfssrv01 upload]$ sudo exportfs -s
+/srv/share  192.168.10.71/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+[vagrant@nfssrv01 upload]$ showmount -a 192.168.10.70
+All mount points on 192.168.10.70:
+192.168.10.71:/srv/share
+[vagrant@nfssrv01 upload]$ 

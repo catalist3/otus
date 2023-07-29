@@ -1,0 +1,23 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure(2) do |config|
+    config.vm.box = "centos/7"
+    config.vm.box_version = "2004.01"
+    config.vm.box_check_update = false
+    config.vm.provider "virtualbox" do |vb|
+       vb.memory = "1024"
+       vb.cpus = 4
+    end
+    config.vm.define "nfssrv01" do |nfssrv01|
+        nfssrv01.vm.network "private_network", ip: '192.168.10.70', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "netnfs"
+        nfssrv01.vm.network :forwarded_port, guest: 22, host: 2201, id: "ssh"
+        nfssrv01.vm.hostname = "nfssrv01.local"
+        nfssrv01.vm.provision "shell", path: "./servernfs.sh"
+    end
+      config.vm.define "nfsclient01" do |nfsclient01|
+        nfsclient01.vm.network "private_network", ip: '192.168.10.71', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "netnfs"
+        nfsclient01.vm.network :forwarded_port, guest: 22, host: 2202, id: "ssh"
+        nfsclient01.vm.hostname = "nfsclient01.local"
+        nfsclient01.vm.provision "shell", path: "./clientnfs.sh"
+    end
+  end
