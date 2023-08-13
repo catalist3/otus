@@ -1,0 +1,523 @@
+[vagrant@centos7systemd ~]$ sudo vi /etc/sysconfig/watchlog
+[vagrant@centos7systemd ~]$ sudo vi /var/log/watchlog.log
+[vagrant@centos7systemd ~]$ sudo vi /opt/watchlog.sh
+[vagrant@centos7systemd ~]$ cd /etc/systemd/system/
+[vagrant@centos7systemd system]$ ll
+total 4
+drwxr-xr-x. 2 root root   32 Apr 30  2020 basic.target.wants
+lrwxrwxrwx. 1 root root   57 Apr 30  2020 dbus-org.freedesktop.nm-dispatcher.service -> /usr/lib/systemd/system/NetworkManager-dispatcher.service
+lrwxrwxrwx. 1 root root   37 Apr 30  2020 default.target -> /lib/systemd/system/multi-user.target
+drwxr-xr-x. 2 root root   87 Apr 30  2020 default.target.wants
+drwxr-xr-x. 2 root root   38 Apr 30  2020 dev-virtio\x2dports-org.qemu.guest_agent.0.device.wants
+drwxr-xr-x. 2 root root   32 Apr 30  2020 getty.target.wants
+drwxr-xr-x. 2 root root   35 Apr 30  2020 local-fs.target.wants
+drwxr-xr-x. 2 root root 4096 Apr 30  2020 multi-user.target.wants
+drwxr-xr-x. 2 root root   48 Apr 30  2020 network-online.target.wants
+drwxr-xr-x. 2 root root   31 Apr 30  2020 remote-fs.target.wants
+drwxr-xr-x. 2 root root   28 Apr 30  2020 sockets.target.wants
+drwxr-xr-x. 2 root root  171 Apr 30  2020 sysinit.target.wants
+drwxr-xr-x. 2 root root   44 Apr 30  2020 system-update.target.wants
+drwxr-xr-x. 2 root root   58 Apr 30  2020 vmtoolsd.service.requires
+[vagrant@centos7systemd system]$ chmod +x /opt/watchlog.sh
+chmod: changing permissions of '/opt/watchlog.sh': Operation not permitted
+[vagrant@centos7systemd system]$ sudo chmod +x /opt/watchlog.sh
+[vagrant@centos7systemd system]$ sudo vi watchlog.service
+[vagrant@centos7systemd system]$ sudo vi watchlog.timer
+[vagrant@centos7systemd system]$ systemctl start watchlog.timer
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+Authentication is required to manage system services or units.
+Authenticating as: root
+Password: 
+polkit-agent-helper-1: pam_authenticate failed: Authentication failure
+==== AUTHENTICATION FAILED ===
+Failed to start watchlog.timer: Access denied
+See system logs and 'systemctl status watchlog.timer' for details.
+[vagrant@centos7systemd system]$ sudo systemctl start watchlog.timer
+[vagrant@centos7systemd system]$ tail -f /var/log/messages
+tail: cannot open '/var/log/messages' for reading: Permission denied
+tail: no files remaining
+[vagrant@centos7systemd system]$ sudo tail -f /var/log/messages
+Aug 13 19:19:32 localhost systemd: Removed slice User Slice of vagrant.
+Aug 13 19:19:44 localhost systemd: Created slice User Slice of vagrant.
+Aug 13 19:19:44 localhost systemd: Started Session 3 of user vagrant.
+Aug 13 19:19:44 localhost systemd-logind: New session 3 of user vagrant.
+Aug 13 19:20:24 localhost chronyd[354]: Selected source 192.36.143.130
+Aug 13 19:20:25 localhost chronyd[354]: Source 94.247.111.10 replaced with 89.179.240.219
+Aug 13 19:22:34 localhost chronyd[354]: Selected source 162.159.200.1
+Aug 13 19:34:23 localhost systemd: Starting Cleanup of Temporary Directories...
+Aug 13 19:34:23 localhost systemd: Started Cleanup of Temporary Directories.
+Aug 13 19:40:26 localhost systemd: Started Run watchlog script every 30 second.
+^C
+[vagrant@centos7systemd system]$ sudo tail -f /var/log/messages
+Aug 13 19:19:32 localhost systemd: Removed slice User Slice of vagrant.
+Aug 13 19:19:44 localhost systemd: Created slice User Slice of vagrant.
+Aug 13 19:19:44 localhost systemd: Started Session 3 of user vagrant.
+Aug 13 19:19:44 localhost systemd-logind: New session 3 of user vagrant.
+Aug 13 19:20:24 localhost chronyd[354]: Selected source 192.36.143.130
+Aug 13 19:20:25 localhost chronyd[354]: Source 94.247.111.10 replaced with 89.179.240.219
+Aug 13 19:22:34 localhost chronyd[354]: Selected source 162.159.200.1
+Aug 13 19:34:23 localhost systemd: Starting Cleanup of Temporary Directories...
+Aug 13 19:34:23 localhost systemd: Started Cleanup of Temporary Directories.
+Aug 13 19:40:26 localhost systemd: Started Run watchlog script every 30 second.
+^C
+[vagrant@centos7systemd system]$ cat watchlog.service
+[Unit]
+Description=My watchlog service
+
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/sysconfig/watchlog
+ExecStart=/opt/watchlog.sh $WORD $LOG
+[vagrant@centos7systemd system]$ cat watchlog.timer
+[Unit]
+Description=Run watchlog script every 30 second
+
+[Timer]
+# Run every 30 second
+OnUnitActiveSec=30
+Unit=watchlog.service
+
+[Install]
+WantedBy=multi-user.targe
+[vagrant@centos7systemd system]$ cd /
+[vagrant@centos7systemd /]$ yum install epel-release -y && yum install spawn-fcgi php php-cli
+Failed to set locale, defaulting to C
+Loaded plugins: fastestmirror
+You need to be root to perform this command.
+[vagrant@centos7systemd /]$ 
+[vagrant@centos7systemd /]$ sudo yum install epel-release -y && yum install spawn-fcgi php php-cli mod_fcgid httpd -y
+Failed to set locale, defaulting to C
+Loaded plugins: fastestmirror
+Determining fastest mirrors
+ * base: mirror.awanti.com
+ * extras: mirror.awanti.com
+ * updates: mirror.axelname.ru
+base                                                                                               | 3.6 kB  00:00:00     
+extras                                                                                             | 2.9 kB  00:00:00     
+updates                                                                                            | 2.9 kB  00:00:00     
+(1/4): base/7/x86_64/group_gz                                                                      | 153 kB  00:00:00     
+(2/4): extras/7/x86_64/primary_db                                                                  | 250 kB  00:00:00     
+(3/4): base/7/x86_64/primary_db                                                                    | 6.1 MB  00:00:01     
+(4/4): updates/7/x86_64/primary_db                                                                 |  22 MB  00:00:13     
+Resolving Dependencies
+--> Running transaction check
+---> Package epel-release.noarch 0:7-11 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+==========================================================================================================================
+ Package                          Arch                       Version                     Repository                  Size
+==========================================================================================================================
+Installing:
+ epel-release                     noarch                     7-11                        extras                      15 k
+
+Transaction Summary
+==========================================================================================================================
+Install  1 Package
+
+Total download size: 15 k
+Installed size: 24 k
+Downloading packages:
+warning: /var/cache/yum/x86_64/7/extras/packages/epel-release-7-11.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY
+Public key for epel-release-7-11.noarch.rpm is not installed
+epel-release-7-11.noarch.rpm                                                                       |  15 kB  00:00:00     
+Retrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+Importing GPG key 0xF4A80EB5:
+ Userid     : "CentOS-7 Key (CentOS 7 Official Signing Key) <security@centos.org>"
+ Fingerprint: 6341 ab27 53d7 8a78 a7c2 7bb1 24c6 a8a7 f4a8 0eb5
+ Package    : centos-release-7-8.2003.0.el7.centos.x86_64 (@anaconda)
+ From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : epel-release-7-11.noarch                                                                               1/1 
+  Verifying  : epel-release-7-11.noarch                                                                               1/1 
+
+Installed:
+  epel-release.noarch 0:7-11                                                                                              
+
+Complete!
+Failed to set locale, defaulting to C
+Loaded plugins: fastestmirror
+You need to be root to perform this command.
+[vagrant@centos7systemd /]$ yum repolist
+Failed to set locale, defaulting to C
+Loaded plugins: fastestmirror
+Determining fastest mirrors
+epel/x86_64/metalink                                                                               |  20 kB  00:00:00     
+ * base: mirror.axelname.ru
+ * epel: fedora-mirror02.rbc.ru
+ * extras: mirror.docker.ru
+ * updates: mirror.axelname.ru
+epel                                                                                               | 4.7 kB  00:00:00     
+(1/3): epel/x86_64/group_gz                                                                        |  99 kB  00:00:00     
+(2/3): epel/x86_64/primary_db                                                                      | 7.0 MB  00:00:01     
+(3/3): epel/x86_64/updateinfo                                                                      | 1.0 MB  00:02:37     
+repo id                                    repo name                                                                status
+base/7/x86_64                              CentOS-7 - Base                                                          10072
+epel/x86_64                                Extra Packages for Enterprise Linux 7 - x86_64                           13759
+extras/7/x86_64                            CentOS-7 - Extras                                                          518
+updates/7/x86_64                           CentOS-7 - Updates                                                        5130
+repolist: 29479
+[vagrant@centos7systemd /]$ sudo yum install spawn-fcgi php php-cli mod_fcgid httpd -y
+Failed to set locale, defaulting to C
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+epel/x86_64/metalink                                                                               |  20 kB  00:00:00     
+ * base: mirror.awanti.com
+ * epel: mirror.cspacehostings.com
+ * extras: mirror.awanti.com
+ * updates: mirror.axelname.ru
+https://mirror.cspacehostings.com/epel/7/x86_64/repodata/repomd.xml: [Errno 14] curl#35 - "Peer reports incompatible or unsupported protocol version."
+Trying other mirror.
+epel                                                                                               | 4.7 kB  00:00:00     
+(1/3): epel/x86_64/group_gz                                                                        |  99 kB  00:00:00     
+(2/3): epel/x86_64/primary_db                                                                      | 7.0 MB  00:00:01     
+(3/3): epel/x86_64/updateinfo                                                                      | 1.0 MB  00:00:01     
+Resolving Dependencies
+--> Running transaction check
+---> Package httpd.x86_64 0:2.4.6-99.el7.centos.1 will be installed
+--> Processing Dependency: httpd-tools = 2.4.6-99.el7.centos.1 for package: httpd-2.4.6-99.el7.centos.1.x86_64
+--> Processing Dependency: system-logos >= 7.92.1-1 for package: httpd-2.4.6-99.el7.centos.1.x86_64
+--> Processing Dependency: /etc/mime.types for package: httpd-2.4.6-99.el7.centos.1.x86_64
+--> Processing Dependency: libaprutil-1.so.0()(64bit) for package: httpd-2.4.6-99.el7.centos.1.x86_64
+--> Processing Dependency: libapr-1.so.0()(64bit) for package: httpd-2.4.6-99.el7.centos.1.x86_64
+---> Package mod_fcgid.x86_64 0:2.3.9-6.el7 will be installed
+---> Package php.x86_64 0:5.4.16-48.el7 will be installed
+--> Processing Dependency: php-common(x86-64) = 5.4.16-48.el7 for package: php-5.4.16-48.el7.x86_64
+---> Package php-cli.x86_64 0:5.4.16-48.el7 will be installed
+---> Package spawn-fcgi.x86_64 0:1.6.3-5.el7 will be installed
+--> Running transaction check
+---> Package apr.x86_64 0:1.4.8-7.el7 will be installed
+---> Package apr-util.x86_64 0:1.5.2-6.el7_9.1 will be installed
+---> Package centos-logos.noarch 0:70.0.6-3.el7.centos will be installed
+---> Package httpd-tools.x86_64 0:2.4.6-99.el7.centos.1 will be installed
+---> Package mailcap.noarch 0:2.1.41-2.el7 will be installed
+---> Package php-common.x86_64 0:5.4.16-48.el7 will be installed
+--> Processing Dependency: libzip.so.2()(64bit) for package: php-common-5.4.16-48.el7.x86_64
+--> Running transaction check
+---> Package libzip.x86_64 0:0.10.1-8.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+==========================================================================================================================
+ Package                      Arch                   Version                                Repository               Size
+==========================================================================================================================
+Installing:
+ httpd                        x86_64                 2.4.6-99.el7.centos.1                  updates                 2.7 M
+ mod_fcgid                    x86_64                 2.3.9-6.el7                            base                     79 k
+ php                          x86_64                 5.4.16-48.el7                          base                    1.4 M
+ php-cli                      x86_64                 5.4.16-48.el7                          base                    2.7 M
+ spawn-fcgi                   x86_64                 1.6.3-5.el7                            epel                     18 k
+Installing for dependencies:
+ apr                          x86_64                 1.4.8-7.el7                            base                    104 k
+ apr-util                     x86_64                 1.5.2-6.el7_9.1                        updates                  92 k
+ centos-logos                 noarch                 70.0.6-3.el7.centos                    base                     21 M
+ httpd-tools                  x86_64                 2.4.6-99.el7.centos.1                  updates                  94 k
+ libzip                       x86_64                 0.10.1-8.el7                           base                     48 k
+ mailcap                      noarch                 2.1.41-2.el7                           base                     31 k
+ php-common                   x86_64                 5.4.16-48.el7                          base                    565 k
+
+Transaction Summary
+==========================================================================================================================
+Install  5 Packages (+7 Dependent packages)
+
+Total download size: 29 M
+Installed size: 49 M
+Downloading packages:
+(1/12): apr-util-1.5.2-6.el7_9.1.x86_64.rpm                                                        |  92 kB  00:00:00     
+(2/12): apr-1.4.8-7.el7.x86_64.rpm                                                                 | 104 kB  00:00:00     
+(3/12): libzip-0.10.1-8.el7.x86_64.rpm                                                             |  48 kB  00:00:00     
+(4/12): mailcap-2.1.41-2.el7.noarch.rpm                                                            |  31 kB  00:00:00     
+(5/12): mod_fcgid-2.3.9-6.el7.x86_64.rpm                                                           |  79 kB  00:00:00     
+(6/12): httpd-tools-2.4.6-99.el7.centos.1.x86_64.rpm                                               |  94 kB  00:00:00     
+(7/12): php-5.4.16-48.el7.x86_64.rpm                                                               | 1.4 MB  00:00:00     
+(8/12): php-cli-5.4.16-48.el7.x86_64.rpm                                                           | 2.7 MB  00:00:00     
+(9/12): php-common-5.4.16-48.el7.x86_64.rpm                                                        | 565 kB  00:00:00     
+(10/12): httpd-2.4.6-99.el7.centos.1.x86_64.rpm                                                    | 2.7 MB  00:00:01     
+warning: /var/cache/yum/x86_64/7/epel/packages/spawn-fcgi-1.6.3-5.el7.x86_64.rpm: Header V3 RSA/SHA256 Signature, key ID 352c64e5: NOKEY
+Public key for spawn-fcgi-1.6.3-5.el7.x86_64.rpm is not installed
+(11/12): spawn-fcgi-1.6.3-5.el7.x86_64.rpm                                                         |  18 kB  00:00:00     
+(12/12): centos-logos-70.0.6-3.el7.centos.noarch.rpm                                               |  21 MB  00:00:34     
+--------------------------------------------------------------------------------------------------------------------------
+Total                                                                                     867 kB/s |  29 MB  00:00:34     
+Retrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+Importing GPG key 0x352C64E5:
+ Userid     : "Fedora EPEL (7) <epel@fedoraproject.org>"
+ Fingerprint: 91e9 7d7c 4a5e 96f1 7f3e 888f 6a2f aea2 352c 64e5
+ Package    : epel-release-7-11.noarch (@extras)
+ From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : apr-1.4.8-7.el7.x86_64                                                                                1/12 
+  Installing : apr-util-1.5.2-6.el7_9.1.x86_64                                                                       2/12 
+  Installing : httpd-tools-2.4.6-99.el7.centos.1.x86_64                                                              3/12 
+  Installing : centos-logos-70.0.6-3.el7.centos.noarch                                                               4/12 
+  Installing : libzip-0.10.1-8.el7.x86_64                                                                            5/12 
+  Installing : php-common-5.4.16-48.el7.x86_64                                                                       6/12 
+  Installing : php-cli-5.4.16-48.el7.x86_64                                                                          7/12 
+  Installing : mailcap-2.1.41-2.el7.noarch                                                                           8/12 
+  Installing : httpd-2.4.6-99.el7.centos.1.x86_64                                                                    9/12 
+  Installing : mod_fcgid-2.3.9-6.el7.x86_64                                                                         10/12 
+  Installing : php-5.4.16-48.el7.x86_64                                                                             11/12 
+  Installing : spawn-fcgi-1.6.3-5.el7.x86_64                                                                        12/12 
+  Verifying  : mod_fcgid-2.3.9-6.el7.x86_64                                                                          1/12 
+  Verifying  : spawn-fcgi-1.6.3-5.el7.x86_64                                                                         2/12 
+  Verifying  : mailcap-2.1.41-2.el7.noarch                                                                           3/12 
+  Verifying  : apr-1.4.8-7.el7.x86_64                                                                                4/12 
+  Verifying  : php-cli-5.4.16-48.el7.x86_64                                                                          5/12 
+  Verifying  : httpd-2.4.6-99.el7.centos.1.x86_64                                                                    6/12 
+  Verifying  : libzip-0.10.1-8.el7.x86_64                                                                            7/12 
+  Verifying  : php-common-5.4.16-48.el7.x86_64                                                                       8/12 
+  Verifying  : php-5.4.16-48.el7.x86_64                                                                              9/12 
+  Verifying  : apr-util-1.5.2-6.el7_9.1.x86_64                                                                      10/12 
+  Verifying  : centos-logos-70.0.6-3.el7.centos.noarch                                                              11/12 
+  Verifying  : httpd-tools-2.4.6-99.el7.centos.1.x86_64                                                             12/12 
+
+Installed:
+  httpd.x86_64 0:2.4.6-99.el7.centos.1         mod_fcgid.x86_64 0:2.3.9-6.el7          php.x86_64 0:5.4.16-48.el7        
+  php-cli.x86_64 0:5.4.16-48.el7               spawn-fcgi.x86_64 0:1.6.3-5.el7        
+
+Dependency Installed:
+  apr.x86_64 0:1.4.8-7.el7                   apr-util.x86_64 0:1.5.2-6.el7_9.1 centos-logos.noarch 0:70.0.6-3.el7.centos
+  httpd-tools.x86_64 0:2.4.6-99.el7.centos.1 libzip.x86_64 0:0.10.1-8.el7      mailcap.noarch 0:2.1.41-2.el7            
+  php-common.x86_64 0:5.4.16-48.el7         
+
+Complete!
+[vagrant@centos7systemd /]$ sudo vi /etc/sysconfig/spawn-fcgi
+[vagrant@centos7systemd /]$ cat /etc/sysconfig/spawn-fcgi
+cat: /etc/sysconfig/spawn-fcgi: Permission denied
+[vagrant@centos7systemd /]$ sudo cat /etc/sysconfig/spawn-fcgi
+# You must set some working options before the "spawn-fcgi" service will work.
+# If SOCKET points to a file, then this file is cleaned up by the init script.
+#
+# See spawn-fcgi(1) for all possible options.
+#
+# Example :
+SOCKET=/var/run/php-fcgi.sock
+OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
+
+[vagrant@centos7systemd /]$ sudo cat /etc/systemd/system/spawn-fcgi.service
+cat: /etc/systemd/system/spawn-fcgi.service: No such file or directory
+[vagrant@centos7systemd /]$ sudo vi /etc/systemd/system/spawn-fcgi.service
+[vagrant@centos7systemd /]$ sudo cat /etc/systemd/system/spawn-fcgi.service
+[Unit]
+Description=Spawn-fcgi startup service by Otus
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/spawn-fcgi.pid
+EnvironmentFile=/etc/sysconfig/spawn-fcgi
+ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS
+KillMode=process
+
+
+[Install]
+WantedBy=multi-user.target
+[vagrant@centos7systemd /]$ systemctl start spawn-fcgi
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+Authentication is required to manage system services or units.
+Authenticating as: root
+Password: 
+[vagrant@centos7systemd /]$ sudo systemctl start spawn-fcgi
+[vagrant@centos7systemd /]$ sudo systemctl status spawn-fcgi
+● spawn-fcgi.service - Spawn-fcgi startup service by Otus
+   Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; vendor preset: disabled)
+   Active: active (running) since Sun 2023-08-13 19:59:06 UTC; 7s ago
+ Main PID: 2668 (php-cgi)
+   CGroup: /system.slice/spawn-fcgi.service
+           ├─2668 /usr/bin/php-cgi
+           ├─2669 /usr/bin/php-cgi
+           ├─2670 /usr/bin/php-cgi
+           ├─2671 /usr/bin/php-cgi
+           ├─2672 /usr/bin/php-cgi
+           ├─2673 /usr/bin/php-cgi
+           ├─2674 /usr/bin/php-cgi
+           ├─2675 /usr/bin/php-cgi
+           ├─2676 /usr/bin/php-cgi
+           ├─2677 /usr/bin/php-cgi
+           ├─2678 /usr/bin/php-cgi
+           ├─2679 /usr/bin/php-cgi
+           ├─2680 /usr/bin/php-cgi
+           ├─2681 /usr/bin/php-cgi
+           ├─2682 /usr/bin/php-cgi
+           ├─2683 /usr/bin/php-cgi
+           ├─2684 /usr/bin/php-cgi
+           ├─2685 /usr/bin/php-cgi
+           ├─2686 /usr/bin/php-cgi
+           ├─2687 /usr/bin/php-cgi
+           ├─2688 /usr/bin/php-cgi
+           ├─2689 /usr/bin/php-cgi
+           ├─2690 /usr/bin/php-cgi
+           ├─2691 /usr/bin/php-cgi
+           ├─2692 /usr/bin/php-cgi
+           ├─2693 /usr/bin/php-cgi
+           ├─2694 /usr/bin/php-cgi
+           ├─2695 /usr/bin/php-cgi
+           ├─2696 /usr/bin/php-cgi
+           ├─2697 /usr/bin/php-cgi
+           ├─2698 /usr/bin/php-cgi
+           ├─2699 /usr/bin/php-cgi
+           └─2700 /usr/bin/php-cgi
+
+Aug 13 19:59:06 centos7systemd systemd[1]: Started Spawn-fcgi startup service by Otus.
+[vagrant@centos7systemd /]$ 
+[vagrant@centos7systemd /]$ sudo cat /usr/lib/systemd/system/httpd.service
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=man:httpd(8)
+Documentation=man:apachectl(8)
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/sysconfig/httpd
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+ExecStop=/bin/kill -WINCH ${MAINPID}
+# We want systemd to give httpd some time to finish gracefully, but still want
+# it to kill httpd after TimeoutStopSec if something went wrong during the
+# graceful stop. Normally, Systemd sends SIGTERM signal right after the
+# ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
+# httpd time to finish.
+KillSignal=SIGCONT
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+[vagrant@centos7systemd /]$ sudo vi /usr/lib/systemd/system/httpd.service
+[vagrant@centos7systemd /]$ sudo cat /usr/lib/systemd/system/httpd.service
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=man:httpd(8)
+Documentation=man:apachectl(8)
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/sysconfig/httpd-%I
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+ExecStop=/bin/kill -WINCH ${MAINPID}
+# We want systemd to give httpd some time to finish gracefully, but still want
+# it to kill httpd after TimeoutStopSec if something went wrong during the
+# graceful stop. Normally, Systemd sends SIGTERM signal right after the
+# ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
+# httpd time to finish.
+KillSignal=SIGCONT
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+[vagrant@centos7systemd /]$ 
+
+[vagrant@centos7systemd conf]$ ll
+total 28
+-rw-r--r--. 1 root root 11753 May 30 13:49 httpd.conf
+-rw-r--r--. 1 root root 13064 May 30 14:01 magic
+[vagrant@centos7systemd conf]$ cp httpd.conf first.conf
+cp: cannot create regular file 'first.conf': Permission denied
+[vagrant@centos7systemd conf]$ sudo cp httpd.conf first.conf
+[vagrant@centos7systemd conf]$ ll
+total 40
+-rw-r--r--. 1 root root 11753 Aug 13 20:13 first.conf
+-rw-r--r--. 1 root root 11753 May 30 13:49 httpd.conf
+-rw-r--r--. 1 root root 13064 May 30 14:01 magic
+[vagrant@centos7systemd conf]$ sudo cp httpd.conf second.conf
+[vagrant@centos7systemd conf]$ ll
+total 52
+-rw-r--r--. 1 root root 11753 Aug 13 20:13 first.conf
+-rw-r--r--. 1 root root 11753 May 30 13:49 httpd.conf
+-rw-r--r--. 1 root root 13064 May 30 14:01 magic
+-rw-r--r--. 1 root root 11753 Aug 13 20:13 second.conf
+[vagrant@centos7systemd conf]$ 
+
+Юнит файл /etc/systemd/system/httpd-@.service:
+
+[vagrant@centos7systemd conf]$ sudo cat /usr/lib/systemd/system/httpd-@.service
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=man:httpd(8)
+Documentation=man:apachectl(8)
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/sysconfig/httpd-%I
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+ExecStop=/bin/kill -WINCH ${MAINPID}
+# We want systemd to give httpd some time to finish gracefully, but still want
+# it to kill httpd after TimeoutStopSec if something went wrong during the
+# graceful stop. Normally, Systemd sends SIGTERM signal right after the
+# ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
+# httpd time to finish.
+KillSignal=SIGCONT
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+[vagrant@centos7systemd conf]$ 
+
+файлы окружения:
+/etc/sysconfig/httpd-first
+# /etc/sysconfig/httpd-first
+OPTIONS=-f conf/first.conf
+
+/etc/sysconfig/httpd-second
+# /etc/sysconfig/httpd-second
+OPTIONS=-f conf/second.conf
+
+2 файла конфигов httpd - first.conf и second.conf для этого скопируем стандартный файл файл конфигурации:
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/first.conf
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/second.conf
+
+Перечитаем настройки systemd:
+sudo systemctl daemon-reload
+
+Запустим экземпляры веб-сервера
+systemctl start httpd-@first.service
+systemctl start httpd-@second.service
+
+Проверяем статус:
+[vagrant@centos7systemd conf]$ sudo systemctl status httpd-@second.service
+● httpd-@second.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd-@.service; disabled; vendor preset: disabled)
+   Active: active (running) since Sun 2023-08-13 21:10:56 UTC; 30s ago
+     Docs: man:httpd(8)
+           man:apachectl(8)
+ Main PID: 22045 (httpd)
+   Status: "Total requests: 0; Current requests/sec: 0; Current traffic:   0 B/sec"
+   CGroup: /system.slice/system-httpd\x2d.slice/httpd-@second.service
+           ├─22045 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─22046 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─22047 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─22048 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─22049 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─22050 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           └─22051 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+
+      [vagrant@centos7systemd conf]$ sudo systemctl status httpd-@first.service
+● httpd-@first.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd-@.service; disabled; vendor preset: disabled)
+   Active: active (running) since Sun 2023-08-13 21:11:04 UTC; 11s ago
+     Docs: man:httpd(8)
+           man:apachectl(8)
+ Main PID: 22060 (httpd)
+   Status: "Total requests: 0; Current requests/sec: 0; Current traffic:   0 B/sec"
+   CGroup: /system.slice/system-httpd\x2d.slice/httpd-@first.service
+           ├─22060 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─22061 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─22062 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─22063 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─22064 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─22065 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           └─22066 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+     
