@@ -1,0 +1,96 @@
+############################################################################################
+
+[vagrant@centos7systemd ~]$ tail -f /var/log/messages
+tail: cannot open '/var/log/messages' for reading: Permission denied
+tail: no files remaining
+[vagrant@centos7systemd ~]$ sudo tail -f /var/log/messages
+Aug 21 17:55:37 localhost systemd: Started My watchlog service.
+Aug 21 17:56:08 localhost systemd: Starting My watchlog service...
+Aug 21 17:56:08 localhost root: Mon Aug 21 17:56:08 UTC 2023: I found word, Master!
+Aug 21 17:56:08 localhost systemd: Started My watchlog service.
+Aug 21 17:56:38 localhost systemd: Starting My watchlog service...
+Aug 21 17:56:38 localhost root: Mon Aug 21 17:56:38 UTC 2023: I found word, Master!
+Aug 21 17:56:38 localhost systemd: Started My watchlog service.
+Aug 21 17:57:08 localhost systemd: Starting My watchlog service...
+Aug 21 17:57:08 localhost root: Mon Aug 21 17:57:08 UTC 2023: I found word, Master!
+Aug 21 17:57:08 localhost systemd: Started My watchlog service.
+Aug 21 17:57:38 localhost systemd: Starting My watchlog service...
+
+############################################################################################
+
+[vagrant@centos7systemd ~]$ systemctl status spawn-fcgi
+● spawn-fcgi.service - Spawn-fcgi startup service by Otus
+   Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; vendor preset: disabled)
+   Active: active (running) since Mon 2023-08-21 17:51:45 UTC; 17min ago
+ Main PID: 2608 (php-cgi)
+   CGroup: /system.slice/spawn-fcgi.service
+           ├─2608 /usr/bin/php-cgi
+           ├─2620 /usr/bin/php-cgi
+           ├─2621 /usr/bin/php-cgi
+           ├─2622 /usr/bin/php-cgi
+           ├─2623 /usr/bin/php-cgi
+           ├─2624 /usr/bin/php-cgi
+           ├─2625 /usr/bin/php-cgi
+           ├─2626 /usr/bin/php-cgi
+           ├─2627 /usr/bin/php-cgi
+           ├─2640 /usr/bin/php-cgi
+           ├─2641 /usr/bin/php-cgi
+           ├─2642 /usr/bin/php-cgi
+           ├─2643 /usr/bin/php-cgi
+           ├─2644 /usr/bin/php-cgi
+           ├─2645 /usr/bin/php-cgi
+           ├─2646 /usr/bin/php-cgi
+           ├─2647 /usr/bin/php-cgi
+           ├─2648 /usr/bin/php-cgi
+           ├─2649 /usr/bin/php-cgi
+           ├─2650 /usr/bin/php-cgi
+           ├─2651 /usr/bin/php-cgi
+           ├─2652 /usr/bin/php-cgi
+           ├─2653 /usr/bin/php-cgi
+           ├─2654 /usr/bin/php-cgi
+           ├─2655 /usr/bin/php-cgi
+           ├─2656 /usr/bin/php-cgi
+           ├─2657 /usr/bin/php-cgi
+           ├─2658 /usr/bin/php-cgi
+           ├─2659 /usr/bin/php-cgi
+           ├─2660 /usr/bin/php-cgi
+           ├─2661 /usr/bin/php-cgi
+           ├─2662 /usr/bin/php-cgi
+           └─2663 /usr/bin/php-cgi
+
+###############################################################################################
+
+[vagrant@centos7systemd ~]$ systemctl status httpd-@first.service
+● httpd-@first.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd-@.service; disabled; vendor preset: disabled)
+   Active: active (running) since Mon 2023-08-21 17:51:45 UTC; 20min ago
+     Docs: man:httpd(8)
+           man:apachectl(8)
+ Main PID: 2666 (httpd)
+   Status: "Total requests: 0; Current requests/sec: 0; Current traffic:   0 B/sec"
+   CGroup: /system.slice/system-httpd\x2d.slice/httpd-@first.service
+           ├─2666 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─2667 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─2668 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─2669 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─2670 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           ├─2672 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+           └─2673 /usr/sbin/httpd -f conf/first.conf -DFOREGROUND
+
+
+[vagrant@centos7systemd ~]$ systemctl status httpd-@second.service
+● httpd-@second.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd-@.service; disabled; vendor preset: disabled)
+   Active: active (running) since Mon 2023-08-21 17:51:45 UTC; 21min ago
+     Docs: man:httpd(8)
+           man:apachectl(8)
+ Main PID: 2674 (httpd)
+   Status: "Total requests: 0; Current requests/sec: 0; Current traffic:   0 B/sec"
+   CGroup: /system.slice/system-httpd\x2d.slice/httpd-@second.service
+           ├─2674 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─2675 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─2676 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─2677 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─2678 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           ├─2679 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND
+           └─2680 /usr/sbin/httpd -f conf/second.conf -DFOREGROUND

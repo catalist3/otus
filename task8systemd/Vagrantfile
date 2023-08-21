@@ -27,6 +27,7 @@ Vagrant.configure("2") do |config|
         v.memory = boxconfig[:memory]
         v.cpus = boxconfig[:cpus]
       end
+      box.vm.provision "shell", path: "./install.sh"
     end
   end
 end
