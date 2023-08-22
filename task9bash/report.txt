@@ -1,0 +1,304 @@
+From root@localhost.localdomain  Tue Aug 22 10:37:21 2023
+Return-Path: <root@localhost.localdomain>
+X-Original-To: root@localhost
+Delivered-To: root@localhost.localdomain
+Received: by localhost.localdomain (Postfix, from userid 0)
+	id 5A621673F7; Tue, 22 Aug 2023 10:37:21 -0400 (EDT)
+Date: Tue, 22 Aug 2023 10:37:21 -0400
+To: root@localhost.localdomain
+Subject: check msg
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230822143721.5A621673F7@localhost.localdomain>
+From: root@localhost.localdomain (root)
+
+Data for period from: [14/Aug/2019:04:12:10 +0300] to 15/Aug/2019:00:25:46 +0300 
+
+ The list of IP and count IP
+ CountIP 	 IP-Evaluation
+-------- 	 -------
+45 	 93.158.167.130
+39 	 109.236.252.130
+37 	 212.57.117.19
+33 	 188.43.241.106
+31 	 87.250.233.68
+24 	 62.75.198.172
+22 	 148.251.223.21
+20 	 185.6.8.9
+17 	 217.118.66.161
+16 	 95.165.18.146
+12 	 95.108.181.93
+12 	 62.210.252.196
+12 	 185.142.236.35
+12 	 162.243.13.195
+The end 
+ Most common address 
+ /wp-login.php
+/
+/xmlrpc.php
+/robots.txt
+/favicon.ico
+/wp-includes/js/wp-embed.min.js?ver=5.0.4 
+
+ Errors list for 4xx_and_5xx 
+      51 404
+      7 400
+      3 500
+      2 499
+      1 405
+      1 403
+
+From root@localhost.localdomain  Tue Aug 22 16:01:07 2023
+Return-Path: <root@localhost.localdomain>
+X-Original-To: root@localhost
+Delivered-To: root@localhost.localdomain
+Received: by localhost.localdomain (Postfix, from userid 0)
+	id F181A673F7; Tue, 22 Aug 2023 16:01:06 -0400 (EDT)
+Date: Tue, 22 Aug 2023 16:01:06 -0400
+To: root@localhost.localdomain
+Subject: Report message
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230822200106.F181A673F7@localhost.localdomain>
+From: root@localhost.localdomain (root)
+
+Data for period from: 14/Aug/2019:04:12:10 +0300 to 15/Aug/2019:00:25:46 +0300 nn The list of IP and count IP
+ CountIP 	 IP-Evaluation
+-------- 	 -------
+45 	 93.158.167.130
+39 	 109.236.252.130
+37 	 212.57.117.19
+33 	 188.43.241.106
+31 	 87.250.233.68
+24 	 62.75.198.172
+22 	 148.251.223.21
+20 	 185.6.8.9
+17 	 217.118.66.161
+16 	 95.165.18.146
+12 	 95.108.181.93
+12 	 62.210.252.196
+12 	 185.142.236.35
+12 	 162.243.13.195
+The end 
+
+ Errors list for 4xx_and_5xx 
+      51 404
+      7 400
+      3 500
+      2 499
+      1 405
+      1 403
+
+From root@localhost.localdomain  Tue Aug 22 16:03:01 2023
+Return-Path: <root@localhost.localdomain>
+X-Original-To: root@localhost
+Delivered-To: root@localhost.localdomain
+Received: by localhost.localdomain (Postfix, from userid 0)
+	id DA363673F7; Tue, 22 Aug 2023 16:03:01 -0400 (EDT)
+Date: Tue, 22 Aug 2023 16:03:01 -0400
+To: root@localhost.localdomain
+Subject: Report message
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230822200301.DA363673F7@localhost.localdomain>
+From: root@localhost.localdomain (root)
+
+Data for period from: 14/Aug/2019:04:12:10 +0300 to 15/Aug/2019:00:25:46 +0300 
+
+ The list of IP and count IP
+ CountIP 	 IP-Evaluation
+-------- 	 -------
+45 	 93.158.167.130
+39 	 109.236.252.130
+37 	 212.57.117.19
+33 	 188.43.241.106
+31 	 87.250.233.68
+24 	 62.75.198.172
+22 	 148.251.223.21
+20 	 185.6.8.9
+17 	 217.118.66.161
+16 	 95.165.18.146
+12 	 95.108.181.93
+12 	 62.210.252.196
+12 	 185.142.236.35
+12 	 162.243.13.195
+The end 
+ /wp-login.php
+/
+/xmlrpc.php
+/robots.txt
+/favicon.ico
+/wp-includes/js/wp-embed.min.js?ver=5.0.4 
+
+ Errors list for 4xx_and_5xx 
+      51 404
+      7 400
+      3 500
+      2 499
+      1 405
+      1 403
+
+From root@localhost.localdomain  Tue Aug 22 16:03:55 2023
+Return-Path: <root@localhost.localdomain>
+X-Original-To: root@localhost
+Delivered-To: root@localhost.localdomain
+Received: by localhost.localdomain (Postfix, from userid 0)
+	id 5D7EA673F7; Tue, 22 Aug 2023 16:03:55 -0400 (EDT)
+Date: Tue, 22 Aug 2023 16:03:55 -0400
+To: root@localhost.localdomain
+Subject: Report message
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230822200355.5D7EA673F7@localhost.localdomain>
+From: root@localhost.localdomain (root)
+
+Data for period from: 14/Aug/2019:04:12:10 +0300 to 15/Aug/2019:00:25:46 +0300 
+
+ The list of IP and count IP
+ CountIP 	 IP-Evaluation
+-------- 	 -------
+45 	 93.158.167.130
+39 	 109.236.252.130
+37 	 212.57.117.19
+33 	 188.43.241.106
+31 	 87.250.233.68
+24 	 62.75.198.172
+22 	 148.251.223.21
+20 	 185.6.8.9
+17 	 217.118.66.161
+16 	 95.165.18.146
+12 	 95.108.181.93
+12 	 62.210.252.196
+12 	 185.142.236.35
+12 	 162.243.13.195
+The end 
+ List address request: 
+ /wp-login.php
+/
+/xmlrpc.php
+/robots.txt
+/favicon.ico
+/wp-includes/js/wp-embed.min.js?ver=5.0.4 
+
+ Errors list for 4xx_and_5xx 
+      51 404
+      7 400
+      3 500
+      2 499
+      1 405
+      1 403
+
+From root@localhost.localdomain  Tue Aug 22 16:04:20 2023
+Return-Path: <root@localhost.localdomain>
+X-Original-To: root@localhost
+Delivered-To: root@localhost.localdomain
+Received: by localhost.localdomain (Postfix, from userid 0)
+	id 2D841673F7; Tue, 22 Aug 2023 16:04:20 -0400 (EDT)
+Date: Tue, 22 Aug 2023 16:04:20 -0400
+To: root@localhost.localdomain
+Subject: Report message
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230822200420.2D841673F7@localhost.localdomain>
+From: root@localhost.localdomain (root)
+
+Data for period from: 14/Aug/2019:04:12:10 +0300 to 15/Aug/2019:00:25:46 +0300 
+
+ The list of IP and count IP
+ CountIP 	 IP-Evaluation
+-------- 	 -------
+45 	 93.158.167.130
+39 	 109.236.252.130
+37 	 212.57.117.19
+33 	 188.43.241.106
+31 	 87.250.233.68
+24 	 62.75.198.172
+22 	 148.251.223.21
+20 	 185.6.8.9
+17 	 217.118.66.161
+16 	 95.165.18.146
+12 	 95.108.181.93
+12 	 62.210.252.196
+12 	 185.142.236.35
+12 	 162.243.13.195
+The end 
+
+ List address request: 
+ /wp-login.php
+/
+/xmlrpc.php
+/robots.txt
+/favicon.ico
+/wp-includes/js/wp-embed.min.js?ver=5.0.4 
+
+ Errors list for 4xx_and_5xx 
+      51 404
+      7 400
+      3 500
+      2 499
+      1 405
+      1 403
+
+From root@localhost.localdomain  Tue Aug 22 16:05:49 2023
+Return-Path: <root@localhost.localdomain>
+X-Original-To: root@localhost
+Delivered-To: root@localhost.localdomain
+Received: by localhost.localdomain (Postfix, from userid 0)
+	id 6861A673F7; Tue, 22 Aug 2023 16:05:49 -0400 (EDT)
+Date: Tue, 22 Aug 2023 16:05:49 -0400
+To: root@localhost.localdomain
+Subject: Report message
+User-Agent: Heirloom mailx 12.5 7/5/10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230822200549.6861A673F7@localhost.localdomain>
+From: root@localhost.localdomain (root)
+
+Data for period from: 14/Aug/2019:04:12:10 +0300 to 15/Aug/2019:00:25:46 +0300 
+
+ The list of IP and count IP
+ CountIP 	 IP-Evaluation
+-------- 	 -------
+45 	 93.158.167.130
+39 	 109.236.252.130
+37 	 212.57.117.19
+33 	 188.43.241.106
+31 	 87.250.233.68
+24 	 62.75.198.172
+22 	 148.251.223.21
+20 	 185.6.8.9
+17 	 217.118.66.161
+16 	 95.165.18.146
+12 	 95.108.181.93
+12 	 62.210.252.196
+12 	 185.142.236.35
+12 	 162.243.13.195
+The end 
+
+ List address request: 
+ /wp-login.php
+/
+/xmlrpc.php
+/robots.txt
+/favicon.ico
+/wp-includes/js/wp-embed.min.js?ver=5.0.4 
+
+ Errors list for 4xx_and_5xx 
+      51 404
+      7 400
+      3 500
+      2 499
+      1 405
+      1 403
+

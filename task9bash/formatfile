@@ -1,0 +1,11 @@
+BEGIN {
+print "The list of IP and count IP"
+print " CountIP \t IP-Evaluation"
+print "-------- \t -------"
+}
+{
+print $1 " \t " $2
+}
+END {
+print "The end"
+}
