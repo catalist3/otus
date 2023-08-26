@@ -1,0 +1,11 @@
+#!/bin/bash
+
+list=$(find /proc/ -maxdepth 1 -type d -name '[0-9]*' | awk -F"/" '{print $3}')
+for i in $list
+do
+    pid=$(cat /proc/$i/stat | awk '{print $1}')
+    stat=$(cat /proc/$i/stat | awk '{print $3}')
+    name=$(cat /proc/$i/cmdline)
+
+    echo $pid":"$stat":"$name | awk -F":" '{if ($3) print$0;}'
+done
