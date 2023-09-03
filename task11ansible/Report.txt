@@ -1,0 +1,217 @@
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx -i staging/hosts -m ping
+The authenticity of host '[127.0.0.1]:2222 ([127.0.0.1]:2222)' can't be established.
+ECDSA key fingerprint is SHA256:5Ai9xT4/EjNzjz+L/RF+67KpGPkqBlswG5U2bEHHJtk.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+nginx | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ touch ansible.cfg
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ sudo vi ansible.cfg 
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx  -m ping
+nginx | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx -m command -a "uname -r"
+nginx | CHANGED | rc=0 >>
+3.10.0-1127.el7.x86_64
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ 
+
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx -m systemd -a name=firewalld | head -n 20
+nginx | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "name": "firewalld",
+    "status": {
+        "ActiveEnterTimestampMonotonic": "0",
+        "ActiveExitTimestampMonotonic": "0",
+        "ActiveState": "inactive",
+        "After": "dbus.service polkit.service basic.target system.slice",
+        "AllowIsolate": "no",
+        "AmbientCapabilities": "0",
+        "AssertResult": "no",
+        "AssertTimestampMonotonic": "0",
+        "Before": "shutdown.target network-pre.target",
+        "BlockIOAccounting": "no",
+        "BlockIOWeight": "18446744073709551615",
+        "BusName": "org.fedoraproject.FirewallD1",
+        "CPUAccounting": "no",
+
+
+########################################################################
+#Перед установкой репозитория epel обновим пакеты
+######################################################################## 
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx -m yum -a "state=latest" -b
+nginx | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "changes": {
+        "installed": [],
+        "updated": []
+    },
+    "msg": "",
+    "rc": 0,
+    "results": [
+        ""
+    ]
+}
+
+####################################################################
+# Установка репозитория epel
+####################################################################
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx -m yum -a "name=epel-release state=present" -b
+nginx | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": true,
+    "changes": {
+        "installed": [
+            "epel-release"
+        ]
+    },
+    "msg": "warning: /var/cache/yum/x86_64/7/extras/packages/epel-release-7-11.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY\nImporting GPG key 0xF4A80EB5:\n Userid     : \"CentOS-7 Key (CentOS 7 Official Signing Key) <security@centos.org>\"\n Fingerprint: 6341 ab27 53d7 8a78 a7c2 7bb1 24c6 a8a7 f4a8 0eb5\n Package    : centos-release-7-8.2003.0.el7.centos.x86_64 (@anaconda)\n From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\n",
+    "rc": 0,
+    "results": [
+        "Loaded plugins: fastestmirror\nLoading mirror speeds from cached hostfile\n * base: mirror.truenetwork.ru\n * extras: mirror.truenetwork.ru\n * updates: mirror.truenetwork.ru\nResolving Dependencies\n--> Running transaction check\n---> Package epel-release.noarch 0:7-11 will be installed\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package                Arch             Version         Repository        Size\n================================================================================\nInstalling:\n epel-release           noarch           7-11            extras            15 k\n\nTransaction Summary\n================================================================================\nInstall  1 Package\n\nTotal download size: 15 k\nInstalled size: 24 k\nDownloading packages:\nPublic key for epel-release-7-11.noarch.rpm is not installed\nRetrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7\nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Installing : epel-release-7-11.noarch                                     1/1 \n  Verifying  : epel-release-7-11.noarch                                     1/1 \n\nInstalled:\n  epel-release.noarch 0:7-11                                                    \n\nComplete!\n"
+    ]
+}
+
+#########################################################################
+# Результат запуска плейбука:
+#########################################################################
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible-playbook epel.yml
+
+PLAY [Install EPEL Repo] **********************************************************************************************************************
+
+TASK [Gathering Facts] ************************************************************************************************************************
+ok: [nginx]
+
+TASK [Install EPEL Repo package from standart repo] *******************************************************************************************
+ok: [nginx]
+
+PLAY RECAP ************************************************************************************************************************************
+nginx                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0 
+
+########################################################################
+# С использованием инструкции absent удаляем репозиторий:
+########################################################################
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible nginx -m yum -a "name=epel-release state=absent" -b
+nginx | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": true,
+    "changes": {
+        "removed": [
+            "epel-release"
+        ]
+    },
+    "msg": "",
+    "rc": 0,
+    "results": [
+        "Loaded plugins: fastestmirror\nResolving Dependencies\n--> Running transaction check\n---> Package epel-release.noarch 0:7-11 will be erased\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package                Arch             Version        Repository         Size\n================================================================================\nRemoving:\n epel-release           noarch           7-11           @extras            24 k\n\nTransaction Summary\n================================================================================\nRemove  1 Package\n\nInstalled size: 24 k\nDownloading packages:\nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Erasing    : epel-release-7-11.noarch                                     1/1 \n  Verifying  : epel-release-7-11.noarch                                     1/1 \n\nRemoved:\n  epel-release.noarch 0:7-11                                                    \n\nComplete!\n"
+    ]
+}
+
+#######################################################################################
+# Запускаем плейбук снова и отмечаем в результате изменившееся значение "changed=1"
+#######################################################################################
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible-playbook epel.yml
+
+PLAY [Install EPEL Repo] **********************************************************************************************************************
+
+TASK [Gathering Facts] ************************************************************************************************************************
+ok: [nginx]
+
+TASK [Install EPEL Repo package from standart repo] *******************************************************************************************
+changed: [nginx]
+
+PLAY RECAP ************************************************************************************************************************************
+nginx                      : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+#################################################################################
+# Отображение списка тегов с помощью которых можно динамически определять цель:
+#################################################################################
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible-playbook nginx.yml --list-tags
+
+playbook: nginx.yml
+
+  play #1 (nginx): NGINX | Install and configure NGINX	TAGS: []
+      TASK TAGS: [epel-package, nginx-package, packages]
+
+# Пример установки веб-сервера через указание тега
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible-playbook nginx.yml -t nginx-package
+
+PLAY [NGINX | Install and configure NGINX] ****************************************************************************************************
+
+TASK [Gathering Facts] ************************************************************************************************************************
+ok: [nginx]
+
+TASK [NGINX | Install NGINX package from EPEL Repo] *******************************************************************************************
+changed: [nginx]
+
+PLAY RECAP ************************************************************************************************************************************
+nginx                      : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0  
+
+###################################################################
+#Запуск итогового плейбука
+###################################################################
+dimon@dimon-otus:~/vagrant_proj/task11ansible$ ansible-playbook nginx.yml
+
+PLAY [NGINX | Install and configure NGINX] ****************************************************************************************************
+
+TASK [Gathering Facts] ************************************************************************************************************************
+ok: [nginx]
+
+TASK [NGINX | Install EPEL Repo package from standart repo] ***********************************************************************************
+ok: [nginx]
+
+TASK [NGINX | Install NGINX package from EPEL Repo] *******************************************************************************************
+ok: [nginx]
+
+TASK [NGINX | Create NGINX config file from template] *****************************************************************************************
+changed: [nginx]
+
+RUNNING HANDLER [reload nginx] ****************************************************************************************************************
+changed: [nginx]
+
+PLAY RECAP ************************************************************************************************************************************
+nginx                      : ok=5    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0 
+
+##########################################################
+# Проверка результата
+##########################################################
+imon@dimon-otus:~/vagrant_proj/task11ansible$ curl http://192.168.11.150:8080
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css"> 
+
+	html {
+	background-image:url(img/html-background.png);
+	background-color: white;
+	font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+	font-size: 0.85em;
+	line-height: 1.25em;
+	margin: 0 4% 0 4%;
+	}
+
+	body {
+	border: 10px solid #fff;
+	margin:0;
+	padding:0;
+	background: #fff;
+	}
