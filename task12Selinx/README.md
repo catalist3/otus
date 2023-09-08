@@ -14,4 +14,11 @@
 
  ВЫПОЛНЕНИЕ задачи номер 1:
  При развертывании ВМ из vagrantfile веб-сервер nginx ожидаемо не запустится ввиду работающего и настроенного по умолчанию сервиса Selinux.
- ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/ErrorStartNginx.png?raw=true)
+ ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/ErrorStartNginx.png?raw=true)
+
+ Заходим в ВМ: vagrant ssh
+ Дальнейшие действия выполняются от пользователя root.
+
+Провери статус файерволла, корректность конфигурации Nginx и режим работы Selinux:
+![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/Statuses.png?raw=true)
+Видим что файерволл не запущен, конфигурация веб-сервера в норме, режим работы Selinux в статусе Enforcing, что означает что он будет блокировать запрещенную активность.
