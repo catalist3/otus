@@ -36,16 +36,33 @@
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/ngstatus1.png?raw=true)
 И в браузере глянем:
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/browserstatus.png?raw=true)
-Вернем всё как было с помощью команды setsebool -P nis_enabled off
-Проверить статус параметра можно командой getsebool -a | grep nis_enabled
-[root@selinux ~]# setsebool -P nis_enabled off
-[root@selinux ~]# getsebool -a | grep nis_enabled
+Вернем всё как было с помощью команды setsebool -P nis_enabled off 
+
+Проверить статус параметра можно командой getsebool -a | grep nis_enabled 
+
+[root@selinux ~]# setsebool -P nis_enabled off 
+
+[root@selinux ~]# getsebool -a | grep nis_enabled 
 nis_enabled --> off
 
 Попробуем разрешить работу nginx на порту TCP 4881 c помощью добавления нестандартного порта в имеющийся тип:
 Узнаем используемый тип для портов веб-сервера и добавим наш целевой порт в этот тип:
+
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/port_to_type.png?raw=true)
 ПЕрезапустим веб-сервер и проверим статус:
+
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/ngstatus2.png?raw=true)
 Удалим порт из типа,и попытаемся перезапустить веб-сервер:
+
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/ngstatus3.png?raw=true)
+
+На этом этапе веб-сервер запускаться не будет, его блокирует Selinux.
+
+Далее воспользуемся утилитой audit2allow чтобы на основе логов SELinux сделать модуль, который разрешит работу nginx на нестандартном порту:
+
+![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/allowmodule.png?raw=true)
+
+С помощью команды semodule -i nginx.pp применим сформированный модуль.
+Запустим веб-сервер и проверим его статус:
+
+![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/ngstatus4.png?raw=true)
