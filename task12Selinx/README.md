@@ -28,8 +28,11 @@
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/audit.png?raw=true)
 Утилита audit2why рекомендует выполнить команду setsebool -P nis_enabled 1, ключ -P(видимо от слова permanent)позволит сохранить правило и после перезагрузки. Последуем его рекомендациям, перезапустим веб-сервер и прверим его статус:
 [root@selinux ~]# setsebool -P nis_enabled on
+
 [root@selinux ~]# systemctl restart nginx
+
 [root@selinux ~]# systemctl status nginx
+
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/ngstatus1.png?raw=true)
 И в браузере глянем:
 ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/images/browserstatus.png?raw=true)
