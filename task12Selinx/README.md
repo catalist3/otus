@@ -14,4 +14,4 @@
 
  ВЫПОЛНЕНИЕ задачи номер 1:
  При развертывании ВМ из vagrantfile веб-сервер nginx ожидаемо не запустится ввиду работающего и настроенного по умолчанию сервиса Selinux.
- ![Alt text](/home/dimon/vagrant_proj/task12Selinx/ErrorStartNginx.png?raw=true)
+ ![Alt text](https://github.com/catalist3/otus/blob/master/task12Selinx/ErrorStartNginx.png?raw=true)
