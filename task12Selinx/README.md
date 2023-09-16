@@ -165,12 +165,17 @@ Hash: isc-worker0000,named_t,etc_t,file,create
 Тут же приводятся два возможных варианта  решения возникшей проблемы. Попробуем решить изменение контекста файла named.ddns.lab.view1.jnl, поскольку создание модуля может дать полномочия большие чем необходимо.
 
 Найдем расположение файла named.ddns.lab.view1 
+
+```
 [root@ns01 ~]# find /etc/named/ -type f -name named.ddns.lab.view1
 /etc/named/dynamic/named.ddns.lab.view1
+```
 Узнаем контекст безопасности у файла:
 
+```
 [root@ns01 ~]# ll -Z /etc/named/dynamic/named.ddns.lab.view1
 -rw-r--r--. named named system_u:object_r:etc_t:s0 /etc/named/dynamic/named.ddns.lab.view1
+```
 
 Согласно документации для директории /etc/named/dynamic тип по умолчанию установлен как named_cache_t
 <details>
