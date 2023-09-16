@@ -1,4 +1,4 @@
-Практика с SELinux Цель: Тренируем умение работать с SELinux: диагностировать проблемы и модифицировать политики SELinux для корректной работы приложений, если это требуется.
+﻿Практика с SELinux Цель: Тренируем умение работать с SELinux: диагностировать проблемы и модифицировать политики SELinux для корректной работы приложений, если это требуется.
 
 1)Запустить nginx на нестандартном порту 3-мя разными способами:
 - переключатели setsebool;
@@ -184,6 +184,7 @@ named_cache_t
 На основе этой информации изменим тип в контексте
 
 <details>
+  <summary>Изменения типа контекста:</summary>
 [root@ns01 ~]# semanage fcontext -a -t named_cache_t '/etc/named/dynamic(/.*)?'
 [root@ns01 ~]# restorecon -R -v /etc/named/dynamic/
 restorecon reset /etc/named/dynamic context unconfined_u:object_r:etc_t:s0->unconfined_u:object_r:named_cache_t:s0
@@ -193,6 +194,7 @@ restorecon reset /etc/named/dynamic/named.ddns.lab.view1 context system_u:object
 
 Проверим возможность изменить файл зоны.
 <details>
+  <summary>Обновление зоны:</summary>
 [vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
 > server 192.168.50.10
 > zone ddns.lab
@@ -202,6 +204,7 @@ restorecon reset /etc/named/dynamic/named.ddns.lab.view1 context system_u:object
 </details>
 
 <details>
+  <summary>Проверка:</summary>
 [vagrant@client ~]$ dig www.ddns.lab
 
 ; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.14 <<>> www.ddns.lab
