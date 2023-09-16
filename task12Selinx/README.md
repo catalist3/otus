@@ -175,6 +175,7 @@ Hash: isc-worker0000,named_t,etc_t,file,create
 Согласно документации для директории /etc/named/dynamic тип по умолчанию установлен как named_cache_t
 <details>
   <summary>Список:</summary>
+
 ```
 named_cache_t
 /var/named/data(/.*)?
@@ -184,6 +185,7 @@ named_cache_t
 /var/named/chroot/var/named/data(/.*)?
 /var/named/chroot/var/named/slaves(/.*)?
 /var/named/chroot/var/named/dynamic(/.*)?
+
 ```
 </details>
 
@@ -191,12 +193,14 @@ named_cache_t
 
 <details>
   <summary>Изменения типа контекста:</summary>
+
 ```
 [root@ns01 ~]# semanage fcontext -a -t named_cache_t '/etc/named/dynamic(/.*)?'
 [root@ns01 ~]# restorecon -R -v /etc/named/dynamic/
 restorecon reset /etc/named/dynamic context unconfined_u:object_r:etc_t:s0->unconfined_u:object_r:named_cache_t:s0
 restorecon reset /etc/named/dynamic/named.ddns.lab context system_u:object_r:etc_t:s0->system_u:object_r:named_cache_t:s0
 restorecon reset /etc/named/dynamic/named.ddns.lab.view1 context system_u:object_r:etc_t:s0->system_u:object_r:named_cache_t:s0
+
 ```
 </details>
 
