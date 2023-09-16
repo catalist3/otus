@@ -207,16 +207,22 @@ restorecon reset /etc/named/dynamic/named.ddns.lab.view1 context system_u:object
 Проверим возможность изменить файл зоны.
 <details>
   <summary>Обновление зоны:</summary>
+
+```
 [vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
 > server 192.168.50.10
 > zone ddns.lab
 > update add www.ddns.lab. 60 A 192.168.50.15
 > send
 > quit
+```
 </details>
 
 <details>
   <summary>Проверка:</summary>
+
+```
+
 [vagrant@client ~]$ dig www.ddns.lab
 
 ; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.14 <<>> www.ddns.lab
@@ -243,4 +249,6 @@ ns01.dns.lab.		3600	IN	A	192.168.50.10
 ;; SERVER: 192.168.50.10#53(192.168.50.10)
 ;; WHEN: Fri Sep 08 21:47:27 UTC 2023
 ;; MSG SIZE  rcvd: 96
+
+```
 </details>
