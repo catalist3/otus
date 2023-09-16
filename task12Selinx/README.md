@@ -1,4 +1,4 @@
-﻿Практика с SELinux Цель: Тренируем умение работать с SELinux: диагностировать проблемы и модифицировать политики SELinux для корректной работы приложений, если это требуется.
+Практика с SELinux Цель: Тренируем умение работать с SELinux: диагностировать проблемы и модифицировать политики SELinux для корректной работы приложений, если это требуется.
 
 1)Запустить nginx на нестандартном порту 3-мя разными способами:
 - переключатели setsebool;
@@ -93,6 +93,8 @@ nis_enabled --> off
 
 <details>
   <summary>Результат применения команды:</summary>
+
+  ```
   94% donetype=AVC msg=audit(1694204151.954:1932): avc:  denied  { write } for  pid=5181 comm="isc-worker0000" name="named" dev="sda1" ino=67552240 scontext=system_u:system_r:named_t:s0 tcontext=system_u:object_r:named_zone_t:s0 tclass=dir permissive=0
  
 **** Invalid AVC allowed in current policy ***
@@ -155,6 +157,8 @@ type=SYSCALL msg=audit(1694205193.577:1968): arch=x86_64 syscall=open success=no
 
 Hash: isc-worker0000,named_t,etc_t,file,create
 
+```
+
 </details>
 
 Строка SELinux is preventing /usr/sbin/named from create access on the file named.ddns.lab.view1.jnl говорит нам, что субьект named не может изменить файл named.ddns.lab.view1.jnl как результат работы SELinux.
@@ -171,6 +175,7 @@ Hash: isc-worker0000,named_t,etc_t,file,create
 Согласно документации для директории /etc/named/dynamic тип по умолчанию установлен как named_cache_t
 <details>
   <summary>Список:</summary>
+```
 named_cache_t
 /var/named/data(/.*)?
 /var/named/slaves(/.*)?
@@ -179,17 +184,20 @@ named_cache_t
 /var/named/chroot/var/named/data(/.*)?
 /var/named/chroot/var/named/slaves(/.*)?
 /var/named/chroot/var/named/dynamic(/.*)?
+```
 </details>
 
 На основе этой информации изменим тип в контексте
 
 <details>
   <summary>Изменения типа контекста:</summary>
+```
 [root@ns01 ~]# semanage fcontext -a -t named_cache_t '/etc/named/dynamic(/.*)?'
 [root@ns01 ~]# restorecon -R -v /etc/named/dynamic/
 restorecon reset /etc/named/dynamic context unconfined_u:object_r:etc_t:s0->unconfined_u:object_r:named_cache_t:s0
 restorecon reset /etc/named/dynamic/named.ddns.lab context system_u:object_r:etc_t:s0->system_u:object_r:named_cache_t:s0
 restorecon reset /etc/named/dynamic/named.ddns.lab.view1 context system_u:object_r:etc_t:s0->system_u:object_r:named_cache_t:s0
+```
 </details>
 
 Проверим возможность изменить файл зоны.
