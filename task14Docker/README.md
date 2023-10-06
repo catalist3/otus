@@ -17,4 +17,4 @@ Docker будет установлен на Centos 7 из репозитория
 Установим послендюю версию ``` yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin ```
 
 После установки запустим и проверим ``` systemctl start docker ``` и ``` docker run hello-world ```
-[Alt text](https://github.com/catalist3/otus/blob/master/task14Docker/images/Docker_Hello_world.jpg?raw=true)
+![Alt text](https://github.com/catalist3/otus/blob/master/task14Docker/images/Docker_Hello_world.jpg?raw=true)
