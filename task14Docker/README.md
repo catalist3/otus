@@ -25,3 +25,31 @@ Docker будет установлен на Centos 7 из репозитория
 После  подготовки файлов командой ``` docker build -t customimage/alpng:ng_v1 . ``` создадим образ.
 И проверим список имеющихся в локальном репозитории образов
 ![Alt text](https://github.com/catalist3/otus/blob/master/task14Docker/images/Docker_image_proverka.png?raw=true)
+Убедившись что образ создан, запустим и проверим работу nginx
+![Alt text](https://github.com/catalist3/otus/blob/master/task14Docker/images/nginx_service_proverka.png?raw=true)
+После проверки образ необходимо скопировать в репозиторий на dockerhub.
+С помощью команды ```docker login``` регистрируемся на docker-hub:
+```
+[root@localhost alpdocker]# docker login --username catalist4
+Password:
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+Протегируем образ в локальном репозитории путем до удаленного репозитория и запущим образ в dockerhub:
+```
+ [root@localhost alpdocker]# docker tag customimage/alpng:ng_v1 catalist4/dimon_repo:ng_v1
+[root@localhost alpdocker]# docker push catalist4/dimon_repo:ng_v1
+The push refers to repository [docker.io/catalist4/dimon_repo]
+5d15763f2a10: Pushed
+8c57530970c4: Pushed
+db23489a65de: Pushed
+cc2447e1835a: Mounted from library/alpine
+ng_v1: digest: sha256:35ca32aabe5b386890b7c8b896731dcfc4a7b5321b331522bd33185c536eb767 size: 1153
+```
+Ссылка на репозиторий - https://hub.docker.com/repository/docker/catalist4/dimon_repo/general
+
+
+
