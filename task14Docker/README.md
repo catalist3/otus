@@ -18,3 +18,10 @@ Docker будет установлен на Centos 7 из репозитория
 
 После установки запустим и проверим ``` systemctl start docker ``` и ``` docker run hello-world ```
 ![Alt text](https://github.com/catalist3/otus/blob/master/task14Docker/images/Docker_Hello_world.jpg?raw=true)
+
+Переходим к созданию образа:
+Для чего в отдельной папке создадим файл создания образа "Dockerfile", файл конфигурации для тестового веб-сервера "default.conf", и файл головной страницы для проверки работы nginx "index.html".
+
+После  подготовки файлов командой ``` docker build -t customimage/alpng:ng_v1 . ``` создадим образ.
+И проверим список имеющихся в локальном репозитории образов
+![Alt text](https://github.com/catalist3/otus/blob/master/task14Docker/images/Docker_image_proverka.png?raw=true)
