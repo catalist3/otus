@@ -121,6 +121,7 @@ subnet 10.0.0.0 netmask 255.255.255.0 {
 Запускаем dhcp-сервер и пробуем провести установку ОС на тестовую виртуальную машину(pxeclient).
 
 ![Alt text](https://github.com/catalist3/otus/blob/master/task19TFTP/start_tftp_install.png?raw=true)
+
 После настриваем необходимые параметры установки и, при необходимости, указываем вручную репозиторий - http://10.0.0.20/centos8/BaseOS 
 
 ![Alt text](https://github.com/catalist3/otus/blob/master/task19TFTP/manual_repo.png?raw=true)
