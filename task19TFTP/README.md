@@ -127,6 +127,7 @@ subnet 10.0.0.0 netmask 255.255.255.0 {
 ![Alt text](https://github.com/catalist3/otus/blob/master/task19TFTP/manual_repo.png?raw=true)
 
 Процесс установки:
+
 ![Alt text](https://github.com/catalist3/otus/blob/master/task19TFTP/install_process.png?raw=true)
 
 #### Настройка автоматической установки
