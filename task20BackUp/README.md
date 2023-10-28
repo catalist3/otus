@@ -213,3 +213,207 @@ If you used a repokey mode, the key is stored in the repo, but you should back i
 Use "borg key export" to export the key, optionally in printable format.
 Write down the passphrase. Store both at safe place(s).
 ```
+Проверим возможность создания бэкапа:
+```
+borg create --stats --list borg@192.168.11.160:/var/backup/::"etc-{now:%Y-%m-%d_%H:%M:%S}" /etc
+```
+```
+Archive name: etc-2023-10-26_03:41:29
+Archive fingerprint: 72bda5f2c2ecff2875ee9d2e61a2188a32ba8422e136b9702689a48c1fafb847
+Time (start): Thu, 2023-10-26 03:41:40
+Time (end):   Thu, 2023-10-26 03:41:51
+Duration: 10.77 seconds
+Number of files: 1698
+Utilization of max. archive size: 0%
+------------------------------------------------------------------------------
+                       Original size      Compressed size    Deduplicated size
+This archive:               28.43 MB             13.49 MB             11.84 MB
+All archives:               28.43 MB             13.49 MB             11.84 MB
+
+                       Unique chunks         Total chunks
+Chunk index:                    1278                 1694
+```
+Взглянем на список файлов в бекапе:
+```
+[root@client ~]# borg list borg@192.168.11.160:/var/backup/::etc-2023-10-26_03:41:29 | head -n 10
+Enter passphrase for key ssh://borg@192.168.11.160/var/backup: 
+drwxr-xr-x root   root          0 Wed, 2023-10-25 21:08:17 etc
+-rw------- root   root          0 Thu, 2020-04-30 22:04:55 etc/crypttab
+lrwxrwxrwx root   root         17 Thu, 2020-04-30 22:04:55 etc/mtab -> /proc/self/mounts
+-rw-r--r-- root   root      12288 Wed, 2023-10-25 20:01:59 etc/aliases.db
+-rw-r--r-- root   root       2388 Thu, 2020-04-30 22:08:36 etc/libuser.conf
+-rw-r--r-- root   root       2043 Thu, 2020-04-30 22:08:36 etc/login.defs
+-rw-r--r-- root   root         37 Thu, 2020-04-30 22:08:36 etc/vconsole.conf
+lrwxrwxrwx root   root         25 Thu, 2020-04-30 22:08:36 etc/localtime -> ../usr/share/zoneinfo/UTC
+-rw-r--r-- root   root         19 Thu, 2020-04-30 22:08:36 etc/locale.conf
+-rw-r--r-- root   root         13 Wed, 2023-10-25 20:02:12 etc/hostname
+```
+Извлечем файл из бекапа:
+```
+[root@client ~]# borg extract borg@192.168.11.160:/var/backup/::etc-2023-10-26_03:41:29 etc/locale.conf
+Enter passphrase for key ssh://borg@192.168.11.160/var/backup:
+..............................................................
+[root@client ~]# ls -la etc/
+total 4
+drwx------. 2 root root  25 Oct 26 03:53 .
+dr-xr-x---. 7 root root 201 Oct 26 03:53 ..
+-rw-r--r--. 1 root root  19 Apr 30  2020 locale.conf
+```
+
+Автоматизируем создание бэкапов с помощью systemd.Создаем сервис и таймер в каталоге /etc/systemd/system/
+
+```
+vi /etc/systemd/system/borg-backup.service
+```
+
+```
+[Unit]
+Description=Borg Backup
+
+[Service]
+Type=oneshot
+
+# Passphrase
+Environment=BORG_PASSPHRASE=Otus
+
+# Repository
+Environment=REPO=borg@192.168.11.160:/var/backup/
+
+# Object for backuping
+Environment=BACKUP_TARGET=/etc
+
+
+# Create backup
+ExecStart=/bin/borg create \
+--stats \
+${REPO}::etc-{now:%%Y-%%m-%%d_%%H:%%M:%%S} ${BACKUP_TARGET}
+
+
+# Check backup
+ExecStart=/bin/borg check ${REPO}
+
+
+# Clear old backup
+ExecStart=/bin/borg prune \
+--keep-daily 90 \
+--keep-monthly 12 \
+--keep-yearly 1 \
+${REPO}
+```
+
+```
+vi /etc/systemd/system/borg-backup.timer
+```
+```
+# /etc/systemd/system/borg-backup.timer
+
+[Unit]
+Description=Borg Backup
+Requires=borg-backup.service
+
+[Timer]
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+```
+Перезапустим демон systemd, перезапустим таймер и проверим его статус:
+```
+[root@client ~]# systemctl daemon-reload
+[root@client ~]# systemctl restart borg-backup.timer
+[root@client ~]# systemctl list-timers --all
+NEXT                         LEFT          LAST                         PASSED UNIT                         ACTIVATES
+Thu 2023-10-26 04:46:41 UTC  4min 54s left n/a                          n/a    borg-backup.timer            borg-backup.service
+Thu 2023-10-26 20:16:22 UTC  15h left      Wed 2023-10-25 20:16:22 UTC  8h ago systemd-tmpfiles-clean.timer systemd-tmpfiles-clean
+n/a                          n/a           n/a                          n/a    systemd-readahead-done.timer systemd-readahead-done
+```
+Проверим работу бекапа:
+```
+Enter passphrase for key ssh://borg@192.168.11.160/var/backup: 
+etc-2023-10-26_06:30:23              Thu, 2023-10-26 06:30:28 [716cfe06280b2fb669d2583e118dc87934e28f79f8a40ba6350a0a5db5bfdd44]
+etc-2023-10-26_06:31:55              Thu, 2023-10-26 06:32:00 [8d1cb3c889f9e3c0610087a455f183482abaae700887e7e5e013115732e3d954]
+etc-2023-10-26_06:37:23              Thu, 2023-10-26 06:37:28 [8c7f16ed6e9cc2c60c9131c4580b7db53a03a583ff2a83e982c3cf93049cc757]
+```
+Настроим логирование событий borg в отдельный файл /var/log/borg-backup.log.<br />
+Добавим в файл etc/systemd/system/borg-backup.service следующие строки:
+```
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=borg-backup
+```
+Добавим в /etc/rsyslog.d/ файл конфигурации borg-backup.conf с указанием куда перенаправлять файл.
+```
+[root@client ~]# cat /etc/rsyslog.d/borg-backup.conf
+if $programname == 'borg-backup' then /var/log/borg-backup.log
+& stop
+```
+Настроим ротацию логов:
+```
+vi /etc/logrotate.d/borg-backup.conf
+```
+
+```
+/var/log/borg-backup.log {
+  rotate 3
+  missingok
+  notifempty
+  compress
+  size 1M
+  daily
+  create 0644 root root
+}
+```
+Перезапустим rsyslog и демон systemd и проверим работу логирования:
+
+```
+[root@client ~]# cat /var/log/borg-backup.log
+Oct 26 06:58:54 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 06:58:54 client borg-backup: Archive name: etc-2023-10-26_06:58:48
+Oct 26 06:58:54 client borg-backup: Archive fingerprint: 15c8fc83d0ceb857c90b7b2bd44155f26b0bad32a4e433aae9d1cc0b2b76e18b
+Oct 26 06:58:54 client borg-backup: Time (start): Thu, 2023-10-26 06:58:52
+Oct 26 06:58:54 client borg-backup: Time (end):   Thu, 2023-10-26 06:58:54
+Oct 26 06:58:54 client borg-backup: Duration: 1.62 seconds
+Oct 26 06:58:54 client borg-backup: Number of files: 1702
+Oct 26 06:58:54 client borg-backup: Utilization of max. archive size: 0%
+Oct 26 06:58:54 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 06:58:54 client borg-backup: Original size      Compressed size    Deduplicated size
+Oct 26 06:58:54 client borg-backup: This archive:               28.43 MB             13.49 MB             42.27 kB
+Oct 26 06:58:54 client borg-backup: All archives:              170.57 MB             80.96 MB             11.95 MB
+Oct 26 06:58:54 client borg-backup: Unique chunks         Total chunks
+Oct 26 06:58:54 client borg-backup: Chunk index:                    1293                10180
+Oct 26 06:58:54 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 06:59:42 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 06:59:42 client borg-backup: Archive name: etc-2023-10-26_06:59:34
+Oct 26 06:59:42 client borg-backup: Archive fingerprint: 518eba862f274ae86cb684ae15733c32f19cc60a30ec0f3068224d9a9af99ce8
+Oct 26 06:59:42 client borg-backup: Time (start): Thu, 2023-10-26 06:59:38
+Oct 26 06:59:42 client borg-backup: Time (end):   Thu, 2023-10-26 06:59:41
+Oct 26 06:59:42 client borg-backup: Duration: 2.54 seconds
+Oct 26 06:59:42 client borg-backup: Number of files: 1702
+Oct 26 06:59:42 client borg-backup: Utilization of max. archive size: 0%
+Oct 26 06:59:42 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 06:59:42 client borg-backup: Original size      Compressed size    Deduplicated size
+Oct 26 06:59:42 client borg-backup: This archive:               28.43 MB             13.49 MB                619 B
+Oct 26 06:59:42 client borg-backup: All archives:              170.57 MB             80.96 MB             11.95 MB
+Oct 26 06:59:42 client borg-backup: Unique chunks         Total chunks
+Oct 26 06:59:42 client borg-backup: Chunk index:                    1293                10182
+Oct 26 06:59:42 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 07:05:30 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 07:05:30 client borg-backup: Archive name: etc-2023-10-26_07:05:24
+Oct 26 07:05:30 client borg-backup: Archive fingerprint: 4b7e67425bcf64b1f8be6e96cb31aff9b59b7aacf08066fc7347f1284f66ec6e
+Oct 26 07:05:30 client borg-backup: Time (start): Thu, 2023-10-26 07:05:28
+Oct 26 07:05:30 client borg-backup: Time (end):   Thu, 2023-10-26 07:05:30
+Oct 26 07:05:30 client borg-backup: Duration: 1.71 seconds
+Oct 26 07:05:30 client borg-backup: Number of files: 1702
+Oct 26 07:05:30 client borg-backup: Utilization of max. archive size: 0%
+Oct 26 07:05:30 client borg-backup: ------------------------------------------------------------------------------
+Oct 26 07:05:30 client borg-backup: Original size      Compressed size    Deduplicated size
+Oct 26 07:05:30 client borg-backup: This archive:               28.43 MB             13.49 MB                619 B
+Oct 26 07:05:30 client borg-backup: All archives:              170.57 MB             80.96 MB             11.95 MB
+Oct 26 07:05:30 client borg-backup: Unique chunks         Total chunks
+Oct 26 07:05:30 client borg-backup: Chunk index:                    1293                10184
+```
+
+
+
+
+
