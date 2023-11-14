@@ -444,7 +444,7 @@ verb 3
 openvpn --config client.conf
 ```
 Тестируем:
-
+```
 root@dimon-otus:/etc/openvpn# ping 10.10.10.1
 PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
 64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=2.34 ms
@@ -453,6 +453,7 @@ PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
 64 bytes from 10.10.10.1: icmp_seq=4 ttl=64 time=2.35 ms
 ^C
 --- 10.10.10.1 ping statistics ---
+```
 
 ```
 [root@localhost ~]# ping 10.10.10.6
