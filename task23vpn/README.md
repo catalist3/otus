@@ -91,7 +91,7 @@ verb 3
 На ВМ client в директорию /etc/openvpn/ скопируем файл-ключ static.key, который был создан на сервере.<br />
 На этом шаге можно воспользоваться scp и заодно вспомнить некоторые вещи касаемые настройки ssh(генерация и обмен ключей)<br />
 
-Создадим service unit аналогичный созданному ранее на сервере и запусти его:<br />
+Создадим service unit аналогичный созданному ранее на сервере и запустим его:<br />
 ```
 systemctl start openvpn@client
 ```
@@ -140,7 +140,7 @@ Accepted connection from 10.10.10.2, port 56330
 systemctl restart openvpn@client
 systemctl restart openvpn@server
 ```
-Запусти iperf и проверим результат:<br />
+Запустим iperf и проверим результат:<br />
 Вывод с клента:<br />
 ```
 [root@client openvpn]# iperf3 -c 10.10.10.1 -t 40 -i 5
@@ -208,3 +208,271 @@ TUN:
 Недостатки:
 - broadcast-трафик обычно не передаётся;
 - нельзя использовать мосты.
+
+
+#### RAS на базе OpenVPN
+
+Для выполнения данного задания можно воспользоваться Vagrantfile из 1 задания, только убрать 1 ВМ. Настроим конфигурацию репозитория аналогично тому что делали на ВМ из первой части и отключим selinux.
+
+
+- Устанавливаем репозиторий EPEL:<br />
+```
+yum install -y epel-release
+```
+- Устанавливаем необходимые пакеты:<br />
+```
+yum install -y openvpn easy-rsa
+```
+- Переходим в директорию /etc/openvpn/ и инициализируем pki:<br />
+```
+cd /etc/openvpn/
+/usr/share/easy-rsa/3.0.8/easyrsa init-pki
+```
+На всякий случай можно проверить установленную версию OpenVpn:<br />
+```
+[root@server openvpn]# rpm -qa | grep easy-rsa
+easy-rsa-3.0.8-1.el8.noarch
+```
+
+Сгенерируем необходимые ключи и сертификаты для сервера.<br />
+Получаем ключевую пару:
+```
+[root@server openvpn]# echo 'rasvpn' | /usr/share/easy-rsa/3.0.8/easyrsa build-ca nopass
+Using SSL: openssl OpenSSL 1.1.1k  FIPS 25 Mar 2021
+Generating RSA private key, 2048 bit long modulus (2 primes)
+................................................................................................+++++
+..........................+++++
+e is 65537 (0x010001)
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Common Name (eg: your user, host, or server name) [Easy-RSA CA]:
+CA creation complete and you may now import and sign cert requests.
+Your new CA certificate file for publishing is at:
+/etc/openvpn/pki/ca.crt
+```
+
+Генерируем запрос.
+```
+[root@server openvpn]# echo 'rasvpn' | /usr/share/easy-rsa/3.0.8/easyrsa gen-req server nopass
+Using SSL: openssl OpenSSL 1.1.1k  FIPS 25 Mar 2021
+Generating a RSA private key
+.................................+++++
+.................................................................+++++
+writing new private key to '/etc/openvpn/pki/easy-rsa-33617.FApiBg/tmp.kXQn7K'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Common Name (eg: your user, host, or server name) [server]:
+Keypair and certificate request completed. Your files are:
+req: /etc/openvpn/pki/reqs/server.req
+key: /etc/openvpn/pki/private/server.key
+```
+Подписываем сертификат.
+```
+[root@server openvpn]# echo 'yes' | /usr/share/easy-rsa/3.0.8/easyrsa sign-req server server
+Using SSL: openssl OpenSSL 1.1.1k  FIPS 25 Mar 2021
+
+
+You are about to sign the following certificate.
+Please check over the details shown below for accuracy. Note that this request
+has not been cryptographically verified. Please be sure it came from a trusted
+source or that you have verified the request checksum with the sender.
+
+Request subject, to be signed as a server certificate for 825 days:
+
+subject=
+    commonName                = rasvpn
+
+
+Type the word 'yes' to continue, or any other input to abort.
+  Confirm request details: Using configuration from /etc/openvpn/pki/easy-rsa-33645.xRIbmM/tmp.cZcHSF
+Check that the request matches the signature
+Signature ok
+The Subject's Distinguished Name is as follows
+commonName            :ASN.1 12:'rasvpn'
+Certificate is to be certified until Feb 14 11:05:31 2026 GMT (825 days)
+
+Write out database with 1 new entries
+Data Base Updated
+
+Certificate created at: /etc/openvpn/pki/issued/server.crt
+```
+Генерируем ключ Диффи-Хелмана для передачи чуствительной информации по небезопасным каналам.
+```
+[root@server openvpn]# /usr/share/easy-rsa/3.0.8/easyrsa gen-dh
+Using SSL: openssl OpenSSL 1.1.1k  FIPS 25 Mar 2021
+Generating DH parameters, 2048 bit long safe prime, generator 2
+This is going to take a long time
+..........................+..+...............................................................................
+DH parameters of size 2048 created at /etc/openvpn/pki/dh.pem
+```
+
+Сгенерируем сертификаты для клиента.<br />
+
+```
+[root@server openvpn]# echo 'client' | /usr/share/easy-rsa/3/easyrsa gen-req client nopass
+Using SSL: openssl OpenSSL 1.1.1k  FIPS 25 Mar 2021
+Generating a RSA private key
+................................................................................................+++++
+................................................................+++++
+writing new private key to '/etc/openvpn/pki/easy-rsa-33733.KRzGfU/tmp.QMuuDV'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Common Name (eg: your user, host, or server name) [client]:
+Keypair and certificate request completed. Your files are:
+req: /etc/openvpn/pki/reqs/client.req
+key: /etc/openvpn/pki/private/client.key
+
+
+[root@server openvpn]# echo 'yes' | /usr/share/easy-rsa/3/easyrsa sign-req client client
+Using SSL: openssl OpenSSL 1.1.1k  FIPS 25 Mar 2021
+
+
+You are about to sign the following certificate.
+Please check over the details shown below for accuracy. Note that this request
+has not been cryptographically verified. Please be sure it came from a trusted
+source or that you have verified the request checksum with the sender.
+
+Request subject, to be signed as a client certificate for 825 days:
+
+subject=
+    commonName                = client
+
+
+Type the word 'yes' to continue, or any other input to abort.
+  Confirm request details: Using configuration from /etc/openvpn/pki/easy-rsa-33761.KZb7pX/tmp.75luTb
+Check that the request matches the signature
+Signature ok
+The Subject's Distinguished Name is as follows
+commonName            :ASN.1 12:'client'
+Certificate is to be certified until Feb 14 11:25:21 2026 GMT (825 days)
+
+Write out database with 1 new entries
+Data Base Updated
+
+Certificate created at: /etc/openvpn/pki/issued/client.crt
+```
+
+Создадим service unit для запуска openvpn:
+```
+vi /etc/systemd/system/openvpn@.service
+```
+```
+[Unit]
+Description=OpenVPN Tunneling Application On %I
+After=network.target
+
+[Service]
+Type=notify
+PrivateTmp=true
+ExecStart=/usr/sbin/openvpn --cd /etc/openvpn/ --config %i.conf
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Создадим конфигурационный файл ```/etc/openvpn/server.conf```:<br />
+```
+[root@localhost ~]# cat /etc/openvpn/server.conf
+port 1207
+proto udp
+dev tun
+ca /etc/openvpn/pki/ca.crt
+cert /etc/openvpn/pki/issued/server.crt
+key /etc/openvpn/pki/private/server.key
+dh /etc/openvpn/pki/dh.pem
+server 10.10.10.0 255.255.255.0
+push "10.10.10.0 255.255.255.0"
+ifconfig-pool-persist ipp.txt
+client-to-client
+client-config-dir /etc/openvpn/client
+keepalive 10 120
+comp-lzo
+persist-key
+persist-tun
+status /var/log/openvpn-status.log
+log /var/log/openvpn.log
+verb 3
+```
+Скопируем следующие файлы сертификатов и ключ для клиента на хост-машину.
+```
+/etc/openvpn/pki/ca.crt
+/etc/openvpn/pki/issued/client.crt
+/etc/openvpn/pki/private/client.key
+```
+Можно сделать с помощью scp через промежуточную директорию с изменением прав на файлики(chmod 644).<br />
+Иначе ругается на права доступа.<br />
+Файлы копируем в ту же директории, что и client.conf
+
+Создадим конфигурационны файл клиента client.conf на хост-машине:<br />
+```
+root@dimon-otus:/etc/openvpn# cat client.conf 
+dev tun
+proto udp
+remote 192.168.56.101 1207
+client
+resolv-retry infinite
+remote-cert-tls server
+ca ./ca.crt
+cert ./client.crt
+key ./client.key
+route 10.10.10.0 255.255.255.0
+persist-key
+persist-tun
+comp-lzo
+verb 3
+```
+
+Проверяем подключение к RAS с хостовой машины, запускаем:
+```
+openvpn --config client.conf
+```
+Тестируем:
+
+root@dimon-otus:/etc/openvpn# ping 10.10.10.1
+PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.
+64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=2.34 ms
+64 bytes from 10.10.10.1: icmp_seq=2 ttl=64 time=1.99 ms
+64 bytes from 10.10.10.1: icmp_seq=3 ttl=64 time=2.17 ms
+64 bytes from 10.10.10.1: icmp_seq=4 ttl=64 time=2.35 ms
+^C
+--- 10.10.10.1 ping statistics ---
+
+```
+[root@localhost ~]# ping 10.10.10.6
+PING 10.10.10.6 (10.10.10.6) 56(84) bytes of data.
+64 bytes from 10.10.10.6: icmp_seq=1 ttl=64 time=1.64 ms
+64 bytes from 10.10.10.6: icmp_seq=2 ttl=64 time=1.98 ms
+64 bytes from 10.10.10.6: icmp_seq=3 ttl=64 time=2.08 ms
+^C
+--- 10.10.10.6 ping statistics ---
+```
+
+Записи для туннлей в таблице маршрутизации:
+```
+root@dimon-otus:/etc/openvpn# ip r 
+default via 172.18.11.1 dev ens160 proto static metric 100 
+10.10.10.0/24 via 10.10.10.5 dev tun0 
+```
+```
+[root@localhost ~]# ip r
+default via 10.0.2.2 dev eth0 proto dhcp metric 100 
+10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15 metric 100 
+10.10.10.0/24 via 10.10.10.2 dev tun0 
+```
