@@ -15,7 +15,7 @@
 
 #### Проверим работоспособность DNS-серверов и их конфигурацию 
 
-```
+<pre>
 [root@ns01 ~]# ss -tulpn
 Netid State      Recv-Q Send-Q      Local Address:Port                     Peer Address:Port              
 udp   UNCONN     0      0               127.0.0.1:323                                 *:*                   users:(("chronyd",pid=335,fd=5))
@@ -36,7 +36,7 @@ tcp   LISTEN     0      128                  [::]:111                           
 tcp   LISTEN     0      10                  [::1]:53                               [::]:*                   users:(("named",pid=4572,fd=22))
 tcp   LISTEN     0      128                  [::]:22                               [::]:*                   users:(("sshd",pid=619,fd=4))
 tcp   LISTEN     0      100                 [::1]:25                               [::]:*                   users:(("master",pid=821,fd=14))
-```
+<pre>
 
 Часть конфигурации ns01:<br />
 ```
