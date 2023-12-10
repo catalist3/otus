@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/dimon/vagrant_proj/task29WEB","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
